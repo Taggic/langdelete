@@ -1,0 +1,6 @@
+=== Quick Help: ===
+
+On this page you can delete all language files and folders of your DokuWiki to reduce the space consumption on your web host. \\ 
+Simply define the language you want to keep. English as fundamental requirement will be kept also. All other language files and \\  
+folders of inc and lib directory will be deleted. \\  
+Reading the [[doku>plugin:langdelete|plugin description]] might help you to fully understand how access control works in DokuWiki.

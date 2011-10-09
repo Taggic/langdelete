@@ -1,0 +1,8 @@
+# PLUGIN INFO - DO NOT EDIT!
+
+author  Taggic
+email   taggic@t-online.de
+date    2011-10-09
+name    langdelete
+desc    provides admin delete function for unneccessary language files and folders
+url     http://www.dokuwiki.org/plugin:langdelete
