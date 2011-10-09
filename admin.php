@@ -98,7 +98,8 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
                 echo "|".$f."|<br />";
             } */
             echo '<br /><div class="level4">';
-            $this->_list_language_dirs(DOKU_INC, 0, $lang_keep, $dryrun);
+            $this->_list_language_dirs(DOKU_INC."inc", 0, $lang_keep, $dryrun);
+            $this->_list_language_dirs(DOKU_INC."lib", 0, $lang_keep, $dryrun);
             echo '</div>';
         }
 
