@@ -22,7 +22,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         return array(
             'author' => 'Taggic',
             'email'  => 'taggic@t-online.de',
-            'date'   => '2011-10-09',
+            'date'   => '2011-11-25',
             'name'   => 'langdelete',
             'desc'   => 'Delete unused language files and folders to reduce space consumption',
             'url'    => 'http://dokuwiki.org/plugin:langdelete',
