@@ -65,20 +65,21 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         echo $this->locale_xhtml('help');
         echo '</div>'.NL;
 
-        echo '<div id="langdelete__detail">'.NL;
-        $this->_html_detail();
+        echo '<div id="langdelete__form">'.NL;
+        $this->_html_form();
+        echo '<br />'.NL;
         echo '</div>'.NL;
 
         $lang_keep = $_REQUEST['langdelete_w'];
         $dryrun = $_REQUEST['dryrun'];
         // language given?
-        if ($lang_keep!=false) {
+        if (!empty($lang_keep)) {
             if ($dryrun==true) {
-              echo '<br /><div class="level4"><strong><div class="it__standard_feedback">'.$this->getLang('langdelete_willmsg').'</div></strong></div><br />';
+                msg($this->getLang('langdelete_willmsg'), 2);
+            } else {
+                msg($this->getLang('langdelete_delmsg'), 0);
             }
-            else {
-              echo '<br /><div class="level4"><strong><div class="it__standard_feedback">'.$this->getLang('langdelete_delmsg').'</div></strong></div><br />';
-            }
+            echo '<br />'.NL;
 
             $lang_keep = $lang_keep.',en';
             $lang_keep = explode(',', $lang_keep);
@@ -104,8 +105,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
      *
      * @author  Taggic <taggic@t-online.de>
      */
-    function _html_detail(){
-        global $conf;
+    function _html_form(){
         global $ID;
 
         echo '<div class="level4" id="langdelete__input">'.$this->getLang('i_choose').'<br />'.NL;
