@@ -84,12 +84,13 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
             $this->_list_language_dirs(DOKU_INC.'inc', 0, $lang_keep, $dryrun);
             $this->_list_language_dirs(DOKU_INC.'lib', 0, $lang_keep, $dryrun);
             echo '</div>';
+
+            if ($dryrun==true) {
+                echo '<div class="footnotes">'.NL;
+                echo $this->getLang('langdelete_attention');
+                echo '</div>'.NL;
+            }
         }
-
-        echo '<div class="footnotes">'.NL;
-        echo $this->getLang('p_include');
-        echo '</div>'.NL;
-
     }
 
     /**
