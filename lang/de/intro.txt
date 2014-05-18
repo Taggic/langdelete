@@ -1,3 +1,4 @@
+====== Sprachdateien löschen ======
 === Kurzhilfe ===
 
 Auf dieser Seite können sie alle überflüssigen Sprachdateien und -verzeichnisse löschen, welche lediglich nutzlos Platz auf Ihrem Server verschwenden. Die Liste links zeigt alle verfügbaren Namensräume und Seiten. Dazu legen Sie einfach die Sprachen per entsprechendem ISO-Code fest, welche Sie zusätzlich zu Englisch behalten möchten. Die [[doku>plugin:langdelete|Plugin Beschreibung]] hilft \\ 

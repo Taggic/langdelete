@@ -57,18 +57,14 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
     function html() {
         global $ID;
 
-        echo '<div id="langdelete__manager">'.NL;
-        echo '<h1>'.$this->getLang('menu').'</h1>'.NL;
-        echo '<div class="level1">'.NL;
-
         echo '<div id="langdelete__intro">'.NL;
-        echo $this->locale_xhtml('help');
+        echo $this->locale_xhtml('intro');
         echo '</div>'.NL;
 
         echo '<div id="langdelete__form">'.NL;
         $this->_html_form();
-        echo '<br />'.NL;
         echo '</div>'.NL;
+        echo '<br />'.NL;
 
         $lang_keep = $_REQUEST['langdelete_w'];
         $dryrun = $_REQUEST['dryrun'];
@@ -84,17 +80,14 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
             $lang_keep = $lang_keep.',en';
             $lang_keep = explode(',', $lang_keep);
 
-            echo '<br /><div class="level4">';
+            echo '<div class="level4">';
             $this->_list_language_dirs(DOKU_INC.'inc', 0, $lang_keep, $dryrun);
             $this->_list_language_dirs(DOKU_INC.'lib', 0, $lang_keep, $dryrun);
             echo '</div>';
         }
 
-        echo '<div class="footnotes"><div class="fn">'.NL;
-        echo '<sup><a id="fn__1" class="fn_bot" name="fn__1" href="#fnt__1">1)</a></sup>'.NL;
+        echo '<div class="footnotes">'.NL;
         echo $this->getLang('p_include');
-        echo '</div></div>'.NL;
-
         echo '</div>'.NL;
 
     }
