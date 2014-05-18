@@ -1,9 +1,9 @@
 === Kurzhilfe ===
 
-Auf dieser Seite k&ouml;nnen sie alle &uuml;berfl&uuml;ssigen Sprachdateien und -verzeichnisse l&ouml;schen, welche lediglich nutzlos Platz auf Ihrem Server verschwenden. Die Liste links zeigt alle verf&uuml;gbaren Namensr&auml;ume und Seiten. Dazu legen Sie einfach die Sprachen per entsprechendem ISO-Code fest, welche Sie zus&auml;tzlich zu Englisch behalten m&ouml;chten. Die [[doku>plugin:langdelete|Plugin Beschreibung]] hilft \\ 
+Auf dieser Seite können sie alle überflüssigen Sprachdateien und -verzeichnisse löschen, welche lediglich nutzlos Platz auf Ihrem Server verschwenden. Die Liste links zeigt alle verfügbaren Namensräume und Seiten. Dazu legen Sie einfach die Sprachen per entsprechendem ISO-Code fest, welche Sie zusätzlich zu Englisch behalten möchten. Die [[doku>plugin:langdelete|Plugin Beschreibung]] hilft \\ 
 Ihnen eventuell weitere Fragen zu beantworten.
 
-Die DokuWiki Entwickler sind dazu angehalten die Sprachpakete in Verzeichnissen so zu organisieren, dass der Verzeichnisname einer Sprache den international standardisierten Sprachcodes((Bitte nicht mit den L&auml;nder-Codes nach ISO-3166 verwechseln. Es gibt keine Gew&auml;hr, dass L&auml;nder- und Sprach-Codes immer &uuml;bereinstimmen m&uuml;ssen.)) entspricht. \\ 
+Die DokuWiki Entwickler sind dazu angehalten die Sprachpakete in Verzeichnissen so zu organisieren, dass der Verzeichnisname einer Sprache den international standardisierten Sprachcodes((Bitte nicht mit den Länder-Codes nach ISO-3166 verwechseln. Es gibt keine Gewähr, dass Länder- und Sprach-Codes immer übereinstimmen müssen.)) entspricht. \\ 
  
 Eine entsprechende Liste der zweistelligen Sprachcodes findet sich hier: [[wp>List_of_ISO_639-1_codes]] oder bei der [[http://www.loc.gov/standards/iso639-2/php/English_list.php|US Library of Congress]].
 
