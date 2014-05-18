@@ -1,6 +1,6 @@
 <?php
 /**
- * Delete unused languages -> administration function
+ * Delete unnecessary languages -> administration function
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author     Taggic <taggic@t-online.de>
@@ -15,6 +15,9 @@ if(!defined('DOKU_INC')) die();
  * need to inherit from this class
  */
 class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
+
+    const DEFAULT_LANG = 'en'; // this must be kept
+
     /**
      * return some info
      */
@@ -82,10 +85,13 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
             }
             echo '<br />'.NL;
 
-            $lang_keep = $lang_keep.',en';
-            $lang_keep = explode(',', $lang_keep);
+            $arr_langs = explode(',', $lang_keep);
+            $arr_langs[] = self::DEFAULT_LANG; // add 'en'
+            $arr_langs[] = $conf['lang'];      // add current lang
+            // print_r($arr_langs);
+            $lang_keep = array_unique($arr_langs);
 
-            echo '<div class="level4">';
+            echo '<div class="langdelete__result">';
             $this->_list_language_dirs(DOKU_INC.'inc', 0, $lang_keep, $dryrun);
             $this->_list_language_dirs(DOKU_INC.'lib', 0, $lang_keep, $dryrun);
             echo '</div>';
