@@ -61,9 +61,11 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         echo $this->locale_xhtml('intro');
         echo '</div>'.NL;
 
-        echo '<div id="langdelete__form">'.NL;
+        // inut guidance
+        echo '<p>'.$this->getLang('i_choose').'</p>'.NL;
+
+        // input form
         $this->_html_form();
-        echo '</div>'.NL;
         echo '<br />'.NL;
 
         $lang_keep = $_REQUEST['langdelete_w'];
@@ -86,9 +88,9 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
             echo '</div>';
 
             if ($dryrun==true) {
-                echo '<div class="footnotes">'.NL;
-                echo $this->getLang('langdelete_attention');
-                echo '</div>'.NL;
+                echo '<br />'.NL;
+                msg($this->getLang('langdelete_attention'), 2);
+                echo '<br />'.NL;
             }
         }
     }
@@ -100,28 +102,34 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
      * @author  Taggic <taggic@t-online.de>
      */
     function _html_form(){
-        global $ID;
+        global $ID, $conf;
 
-        echo '<div class="level4" id="langdelete__input">'.$this->getLang('i_choose').'<br />'.NL;
-        echo  '<form action="'.wl($ID).'" method="post">';
-        echo   '<div class="no">'.NL;
+        echo '<div id="langdelete__form">'.NL;
+        echo '<form action="'.wl($ID).'" method="post">';
         echo     '<input type="hidden" name="do" value="admin" />'.NL;
         echo     '<input type="hidden" name="page" value="langdelete" />'.NL;
         echo     '<input type="hidden" name="sectok" value="'.getSecurityToken().'" />'.NL;
-        echo     '<div class="langdelete__divinput">';
-        echo      '<fieldset class="langdelete__fieldset"><legend>'.$this->getLang('i_legend').'</legend>'.NL;
-        echo       '<input type="text" name="langdelete_w" class="edit" value="'.$_REQUEST['langdelete_w'].'" /><br />'.NL;
-        echo       '<input type="checkbox" name="dryrun" checked="checked">&nbsp;'.$this->getLang('i_dryrun').'&nbsp;</input><br />'.NL;
-        echo       '<div class="langdelete__divright">';
-        echo         '<input type="submit" value="'.$this->getLang('btn_start').'" class="button"/>';
-        echo       '</div>'.NL;
-        echo      '</fieldset>';
-        echo     '</div>'.NL;
-        echo   '</div>'.NL;
-        echo  '</form>'.NL;
+
+        echo     '<fieldset class="langdelete__fieldset"><legend>'.$this->getLang('i_legend').'</legend>'.NL;
+
+        echo         '<label class="formTitle">'.$this->getLang('i_using').':</label>';
+        echo         '<div class="box">'.$conf['lang'].'</div>'.NL;
+
+        echo         '<label class="formTitle" for="langdelete_w">'.$this->getLang('i_shouldkeep').':</label>';
+        echo         '<input type="text" name="langdelete_w" class="edit" value="'.$_REQUEST['langdelete_w'].'" />'.NL;
+
+        echo         '<label class="formTitle" for="option">'.$this->getLang('i_runoption').':</label>';
+        echo         '<div class="box">'.NL;
+        echo             '<input type="checkbox" name="dryrun" checked="checked" /> ';
+        echo             '<label for "dryrun">'.$this->getLang('i_dryrun').'</label>'.NL;
+        echo         '</div>'.NL;
+
+        echo         '<input type="submit" value="'.$this->getLang('btn_start').'" class="button"/>'.NL;
+
+        echo     '</fieldset>'.NL;
+        echo '</form>'.NL;
         echo '</div>'.NL;
     }
-
 
   /**
    * This function will read the full structure of a directory. 
@@ -134,8 +142,9 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         $ignore = array( 'cgi-bin', '.', '..' );
         // Open the directory to the handle $dh
         $dh = @opendir( $path );
-        while( false !== ($file = readdir($dh)) ){
+
         // Loop through the directory
+        while( false !== ($file = readdir($dh)) ){
             if( !in_array( $file, $ignore ) ){
                 // Check that this file is not to be ignored
                 if( is_dir( "$path/$file" ) ){
@@ -149,7 +158,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
                     }
                     if ((stripos("$path/$file",'/lang/')>0) && ($cFlag == false)) {
                         $dir = $path.'/'.$file;
-                        if ($dryrun==true) { 
+                        if ($dryrun==true) {
                             echo '<strong>'.substr($dir,strlen(DOKU_INC),strlen($dir)-strlen(DOKU_INC)).'</strong><br />';
                         } else {
                             // now delete the lanuage sub-folder
@@ -163,8 +172,8 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
                 }
             }
         }
-        closedir( $dh );
         // Close the directory handle
+        closedir( $dh );
     }
 
     /**
@@ -172,7 +181,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
      * This is necessary due to only empty directories can be deleted.
      */
     function rrmdir($dir) {
-    // replace "//" in $dir if existing
+        // replace "//" in $dir if existing
         $dir = str_replace('//', '/', $dir);
 
         if (is_dir($dir)) {
