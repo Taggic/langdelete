@@ -19,20 +19,6 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
     const DEFAULT_LANG = 'en'; // this must be kept
 
     /**
-     * return some info
-     */
-    function getInfo(){
-        return array(
-            'author' => 'Taggic',
-            'email'  => 'taggic@t-online.de',
-            'date'   => '2011-11-25',
-            'name'   => 'langdelete',
-            'desc'   => 'Delete unused language files and folders to reduce space consumption',
-            'url'    => 'http://dokuwiki.org/plugin:langdelete',
-        );
-    }
-
-    /**
      * return sort order for position in admin menu
      */
     function getMenuSort() {
