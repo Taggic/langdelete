@@ -57,13 +57,13 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
     function html() {
         global $ID;
 
-        echo '<div id="langdelete__intro">'.NL;
+        // langdelete__intro
         echo $this->locale_xhtml('intro');
-        echo '</div>'.NL;
 
         // inut guidance
-        echo '<p>'.$this->getLang('i_choose').'</p>'.NL;
-
+        echo '<a name="langdelete_inputbox"></a>'.NL;
+        echo $this->locale_xhtml('guide');
+        echo '<br />'.NL;
         // input form
         $this->_html_form();
         echo '<br />'.NL;
@@ -72,6 +72,9 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         $dryrun = $_REQUEST['dryrun'];
         // language given?
         if (!empty($lang_keep)) {
+
+            echo '<h2>'.$this->getLang('h2_output').'</h2>'.NL;
+
             if ($dryrun==true) {
                 msg($this->getLang('langdelete_willmsg'), 2);
             } else {
@@ -91,6 +94,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
                 echo '<br />'.NL;
                 msg($this->getLang('langdelete_attention'), 2);
                 echo '<br />'.NL;
+                echo '<a href="#langdelete_inputbox">'.$this->getLang('backto_inputbox').'</a>'.NL;
             }
         }
     }
