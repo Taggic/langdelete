@@ -30,13 +30,6 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
     }
 
     /**
-     * return prompt for admin menu
-     */
-    function getMenuText($language) {
-        return $this->getLang('admin_langdelete');
-    }
-
-    /**
      * return sort order for position in admin menu
      */
     function getMenuSort() {
@@ -65,7 +58,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         global $ID;
 
         echo '<div id="langdelete__manager">'.NL;
-        echo '<h1>'.$this->getLang('admin_langdelete').'</h1>'.NL;
+        echo '<h1>'.$this->getLang('menu').'</h1>'.NL;
         echo '<div class="level1">'.NL;
 
         echo '<div id="langdelete__intro">'.NL;
