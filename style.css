@@ -1,40 +1,33 @@
-/* ----- General Elements ---------- */
-.it__negative_feedback {
-	border:            1px red solid;
-	background-color:          white;
-	margin:                      0px;
-	padding:                    10px;
-	width:                       60%;
-	border-radius:             0.5em;
+/* ----- Input Form Elements ---------- */
+#langdelete__form fieldset {
+  margin: 1em;
+  width: 35em;
+  margin-bottom: 2em;
+  background-color: __background_alt__;
+  color: __text__;
+  padding: 0 1em;
 }
-.it__positive_feedback {
-	border:          1px green solid;
-	background-color:     lightgreen;
-	margin:                      0px;
-	padding:                    10px;
-	width:                       60%;
-	border-radius:             0.5em;
-}
- .it__standard_feedback {
-	width:                      60%;
-	border:         1px black solid;
-	background-color:       #DBDBDB;
-	padding:                    3px;
-  padding-left:            0.45em;
-	border-radius:            0.5em;
-}
-/* ----- Input Elements ---------- */
-div .langdelete__divinput {
-  width:                    170px;
-  text-align :               left !important; 
+#langdelete__form legend {
+  font-size: 1.25em;
 }
 
- .langdelete__fieldset {
-  width:                   155px !important;
-  text-align:               left !important; 
-	border-radius:           0.5em;
+#langdelete__form label.formTitle {
+  clear: both;
+  display: block;
+  width: 12em;
+  float: left;
+  margin-bottom: 10px;
+  color: #666;
+  font-weight: bold;
+  text-align: left;
 }
 
-div .langdelete__divright {
-  text-align:              right;
+#langdelete__form input.edit {
+  float: left;
+}
+#langdelete__form div.box {
+  float: left;
+}
+#langdelete__form input.button {
+  float: right;
 }

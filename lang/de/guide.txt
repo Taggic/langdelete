@@ -1,0 +1,2 @@
+===== Geben Sprachen, die Sie behalten möchten =====
+Bitte tragen Sie hier die ISO-Codes der Sprachen ein, welche Sie ausser Englisch behalten möchten. Möchten Sie nur Englisch behalten, dann tragen Sie bitte //en// ein. Ein leeres Eingabefeld verhindert die Ausführung der Funktion, um ein Löschen wegen Fehlbedienung zu verhindern. Wenn Sie meherere behalten möchten, dann trennen Sie die jeweiligen ISO-Codes durch ein Komma voneinander. 

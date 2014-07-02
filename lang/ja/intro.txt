@@ -1,0 +1,7 @@
+====== 言語インターフェースオプションの削除 (Delete languages) ======
+=== Quick Help: ===
+多言語インターフェースの不要オプションを削除します。このDokuWikiシステムで選択可能にしておく言語を指定（複数可）し、それら以外の言語用のファイルやフォルダを削除します。それらの余分なファイルやフォルダで使用されていたウェブホストの保存領域を他の目的に使用できるようになります。
+詳細は LangDeleteプラグインの[[doku>plugin:langdelete|解説ページ]]（英語）を参照してください。
+
+Developers of DokuWiki are asked to use ISO 639-1 two-letter codes for language abbreviation. Two-letter codes can be retrieved \\ 
+from [[wp>List_of_ISO_639-1_codes]] or from [[http://www.loc.gov/standards/iso639-2/php/English_list.php|US Library of Congress]].

@@ -1,3 +1,4 @@
+====== Delete languages ======
 === Quick Help: ===
 
 On this page you can delete all language files and folders of your DokuWiki to reduce the space consumption on your web host. \\ 
