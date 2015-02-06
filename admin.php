@@ -188,13 +188,15 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
                         $this->rrmdir($dir.'/'.$object);
                         echo '<strong>'.$dir.'/'.$object.' ->directory removed</strong><br />';
                     } else {
-                       unlink($dir.'/'.$object);
-                       echo $dir.'/'.$object.' -> file deleted<br />';
+                       chmod($dir.'/'.$object, 0755);
+                       $result = @unlink($dir.'/'.$object);
+                       if($result === true) echo $dir.'/'.$object.' -> file deleted<br />';
+                       else echo $dir.'/'.$object.'<span style="color:red;"><b> -> file not deleted</b></span><br />';
                     }
                 }
             }
             reset($objects);
-            rmdir($dir); 
+            @rmdir($dir); 
         }
     }
 }
