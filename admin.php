@@ -113,7 +113,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         echo         '<div class="box">'.$conf['lang'].'</div>'.NL;
 
         echo         '<label class="formTitle" for="langdelete_w">'.$this->getLang('i_shouldkeep').':</label>';
-        echo         '<input type="text" name="langdelete_w" class="edit" value="'.$_REQUEST['langdelete_w'].'" />'.NL;
+        echo         '<input type="text" name="langdelete_w" class="edit" value="'.hsc($_REQUEST['langdelete_w']).'" />'.NL;
 
         echo         '<label class="formTitle" for="option">'.$this->getLang('i_runoption').':</label>';
         echo         '<div class="box">'.NL;
