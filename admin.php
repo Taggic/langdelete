@@ -45,6 +45,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
      */
     function html() {
         global $ID;
+        global $conf;                   // access DW configuration array
 
         // langdelete__intro
         echo $this->locale_xhtml('intro');
