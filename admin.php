@@ -50,7 +50,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         // langdelete__intro
         echo $this->locale_xhtml('intro');
 
-        // inut guidance
+        // input guidance
         echo '<a name="langdelete_inputbox"></a>'.NL;
         echo $this->locale_xhtml('guide');
         echo '<br />'.NL;
@@ -148,12 +148,13 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
                     // Its a directory, so we need to keep reading down...
                     $cFlag = false;
                     foreach ($lang_keep as $f) {
-                        if (stripos("$path/$file",$f)>0) {
+                        if (stripos( substr("$path/$file",strlen("$path/$file")-3,strlen("$path/$file")),$f)>0) {
                             $cFlag = true;
                             break;
                         }
                     }
-                    if ((stripos("$path/$file",'/lang/')>0) && ($cFlag == false)) {
+                    if (stripos("$path/$file",'lang')>0) echo "$path/$file".'<br />';
+                    if ((stripos("$path/$file",'lang/')>0) && ($cFlag == false)) {
                         $dir = $path.'/'.$file;
                         if ($dryrun==true) {
                             echo '<strong>'.substr($dir,strlen(DOKU_INC),strlen($dir)-strlen(DOKU_INC)).'</strong><br />';
