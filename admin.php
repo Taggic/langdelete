@@ -134,6 +134,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
    * it just keeps going through all of the directories in the folder you specify.
    */
     function _list_language_dirs($path, $level,$lang_keep,$dryrun){
+        // misleading variable $file was replaced by $dir due to foreach ist searching directories only here  
         // Directories to ignore when listing output. Many hosts 
         // will deny PHP access to the cgi-bin.
         $ignore = array( 'cgi-bin', '.', '..' );
@@ -141,21 +142,24 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         $dh = @opendir( $path );
 
         // Loop through the directory
-        while( false !== ($file = readdir($dh)) ){
-            if( !in_array( $file, $ignore ) ){
+        while( false !== ($dir = readdir($dh)) ){
+            if( !in_array( $dir, $ignore ) ){
                 // Check that this file is not to be ignored
-                if( is_dir( "$path/$file" ) ){
+                if( is_dir( "$path/$dir" ) ){
                     // Its a directory, so we need to keep reading down...
                     $cFlag = false;
                     foreach ($lang_keep as $f) {
-                        if (stripos( substr("$path/$file",strlen("$path/$file")-3,strlen("$path/$file")),$f)>0) {
+                        $tst  = strtoupper(substr("$path/$dir",strlen("$path/$dir")-strlen("/lang/".trim($f))));
+                        // do not delete the audio folders within language directories to be kept (e.g. captcha/en/audio)
+                        $tst2 = strtoupper(substr("$path/$dir",strlen("$path/$dir")-strlen("/lang/".trim($f)."/audio")));       
+                        if (($tst === strtoupper ("/lang/".trim($f))) || ($tst2 === strtoupper ("/lang/".trim($f)."/audio"))) {
                             $cFlag = true;
                             break;
                         }
                     }
-                    if (stripos("$path/$file",'lang')>0) echo "$path/$file".'<br />';
-                    if ((stripos("$path/$file",'lang/')>0) && ($cFlag == false)) {
-                        $dir = $path.'/'.$file;
+
+                    if ((stripos("$path/$dir",'lang/')>0) && ($cFlag == false)) {
+                        $dir = $path.'/'.$dir;
                         if ($dryrun==true) {
                             echo '<strong>'.substr($dir,strlen(DOKU_INC),strlen($dir)-strlen(DOKU_INC)).'</strong><br />';
                         } else {
@@ -165,7 +169,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
                     }  else {
                         // Re-call this same function but on a new directory.
                         // this is what makes function recursive.
-                        $this->_list_language_dirs( "$path/$file", ($level+1), $lang_keep,$dryrun );
+                        $this->_list_language_dirs( "$path/$dir", ($level+1), $lang_keep,$dryrun );
                     }
                 }
             }
@@ -188,7 +192,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
                 if ($object != '.' && $object != '..') {
                     if (filetype($dir.'/'.$object) == 'dir') {
                         $this->rrmdir($dir.'/'.$object);
-                        echo '<strong>'.$dir.'/'.$object.' ->directory removed</strong><br />';
+                        echo '<strong>'.$dir.'/'.$object.' -> empty directory removed</strong><br />';
                     } else {
                        chmod($dir.'/'.$object, 0755);
                        $result = @unlink($dir.'/'.$object);
