@@ -159,31 +159,23 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         closedir( $dh );
     }
 
-    /**
-     * This function will delete all folders and files which are in the specified directory.
-     * This is necessary due to only empty directories can be deleted.
-     */
-    function rrmdir($dir) {
-        // replace "//" in $dir if existing
-        $dir = str_replace('//', '/', $dir);
 
-        if (is_dir($dir)) {
-            $objects = scandir($dir);
+    /** Recursive file removal with reporting */
+    function rrm ($path) {
+        if (is_dir ($path)) {
+            $objects = scandir ($path);
             foreach ($objects as $object) {
-                if ($object != '.' && $object != '..') {
-                    if (filetype($dir.'/'.$object) == 'dir') {
-                        $this->rrmdir($dir.'/'.$object);
-                        echo '<strong>'.$dir.'/'.$object.' -> empty directory removed</strong><br />';
-                    } else {
-                       chmod($dir.'/'.$object, 0755);
-                       $result = @unlink($dir.'/'.$object);
-                       if($result === true) echo $dir.'/'.$object.' -> file deleted<br />';
-                       else echo $dir.'/'.$object.'<span style="color:red;"><b> -> file not deleted</b></span><br />';
-                    }
+                if (!in_array ($object, array('.', '..'))) {
+                    $this->rrm("$path/$object");
                 }
             }
-            reset($objects);
-            @rmdir($dir); 
+            $sucess = @rmdir ($path);
+            if (!$sucess) { echo "Failed to delete $path/\n"; }
+			else echo "Delete $path\n";
+        } else {
+            $sucess = @unlink ($path);
+            if (!$sucess) { echo "Failed to delete $path\n"; }
+			else echo "Delete $path\n";
         }
     }
 }
