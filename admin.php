@@ -161,6 +161,39 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         return $dirs;
     }
 
+	/** Remove $lang_keep from &$e as return by $this->list_languages() */
+	function _filter_out_lang (&$e, $lang_keep) {
+		if (count ($e) > 0 && is_array (array_values($e)[0])) {
+			foreach ($e as $k => $elt) {
+				$out[$k] = $this->_filter_out_lang ($elt, $lang_keep);
+			}
+			return $out;
+
+		} else {
+			return array_filter ($e, function ($v) use ($lang_keep) {
+				return !in_array ($v, $lang_keep);
+			});
+		}
+	}
+
+	/** Delete the languages from the modules as specified by $langs */
+	function remove_langs($langs) {
+		foreach ($langs['core'] as $l) {
+			$this->rrm(DOKU_INC."inc/lang/$l");
+		}
+
+		foreach ($langs['templates'] as $tpl => $arr) {
+			foreach ($arr as $l) {
+				$this->rrm(DOKU_INC."lib/tpl/$tpl/lang/$l");
+			}
+		}
+
+		foreach ($langs['plugins'] as $plug => $arr) {
+			foreach ($arr as $l) {
+				$this->rrm(DOKU_INC."lib/plugins/$plug/lang/$l");
+			}
+		}
+	}
 
     /** Recursive file removal with reporting */
     function rrm ($path) {
