@@ -80,7 +80,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
                 /* Display what will be deleted */
                 msg($this->getLang('langdelete_willmsg'), 2);
 
-                echo '<section class="langdelete__text">';
+                echo '<section class="langdelete__text to-delete">';
                 $this->html_print_langs($langs_to_delete);
                 echo '</section>';
                 
@@ -91,7 +91,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
 				/* Delete and report what was deleted */
                 msg($this->getLang('langdelete_delmsg'), 0);
 
-                echo '<section class="langdelete__text">';
+                echo '<section class="langdelete__text to-delete">';
                 $this->html_print_langs($langs_to_delete);
                 echo '</section>';
 

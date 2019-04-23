@@ -32,10 +32,16 @@
   float: right;
 }
 
+/* To be at least as secific as the dokuwiki stylesheet */
 .dokuwiki .page section.langdelete__text ul,
 .dokuwiki .page section.langdelete__text ul li
 {
     color: rgb(51, 51, 51)
+}
+
+.dokuwiki .page section.langdelete__text ul.languages li
+{
+    color: rgb(127, 0, 0)
 }
 
 section.langdelete__text ul.languages li {
