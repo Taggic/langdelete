@@ -16,47 +16,29 @@ if(!defined('DOKU_INC')) die();
  */
 class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
 
-    const DEFAULT_LANG = 'en'; // this must be kept
+    const DEFAULT_LANG = 'en'; // fallback language
 
-    /**
-     * return sort order for position in admin menu
-     */
-    function getMenuSort() {
-        return 20;
-    }
-
-    /**
-     * handle user request
-     *
-     * Initializes internal vars and handles modifications
-     *
-     * @author Taggic <taggic@t-online.de>
-     */
-    function handle() {
-        global $ID;
-    }
+    /** return sort order for position in admin menu */
+    function getMenuSort() { return 20; }
 
     /**
      * langdelete Output function
      *
-     * print a table with all found lanuage folders
+     * print a table with all found language folders
      *
      * @author  Taggic <taggic@t-online.de>
      */
     function html() {
-        global $ID;
         global $conf;                   // access DW configuration array
 
         // langdelete__intro
         echo $this->locale_xhtml('intro');
 
-        // input guidance
+        // input anchor
         echo '<a name="langdelete_inputbox"></a>'.NL;
         echo $this->locale_xhtml('guide');
-        echo '<br />'.NL;
         // input form
         $this->_html_form();
-        echo '<br />'.NL;
 
         $lang_keep = $_REQUEST['langdelete_w'];
         $dryrun = $_REQUEST['dryrun'];
@@ -86,7 +68,6 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
             if ($dryrun==true) {
                 echo '<br />'.NL;
                 msg($this->getLang('langdelete_attention'), 2);
-                echo '<br />'.NL;
                 echo '<a href="#langdelete_inputbox">'.$this->getLang('backto_inputbox').'</a>'.NL;
             }
         }
@@ -104,8 +85,8 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         echo '<div id="langdelete__form">'.NL;
         echo '<form action="'.wl($ID).'" method="post">';
         echo     '<input type="hidden" name="do" value="admin" />'.NL;
-        echo     '<input type="hidden" name="page" value="langdelete" />'.NL;
-        echo     '<input type="hidden" name="sectok" value="'.getSecurityToken().'" />'.NL;
+        echo     '<input type="hidden" name="page" value="'.$this->getPluginName().'" />'.NL;
+        formSecurityToken();
 
         echo     '<fieldset class="langdelete__fieldset"><legend>'.$this->getLang('i_legend').'</legend>'.NL;
 
@@ -118,7 +99,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         echo         '<label class="formTitle" for="option">'.$this->getLang('i_runoption').':</label>';
         echo         '<div class="box">'.NL;
         echo             '<input type="checkbox" name="dryrun" checked="checked" /> ';
-        echo             '<label for "dryrun">'.$this->getLang('i_dryrun').'</label>'.NL;
+        echo             '<label for="dryrun">'.$this->getLang('i_dryrun').'</label>'.NL;
         echo         '</div>'.NL;
 
         echo         '<input type="submit" value="'.$this->getLang('btn_start').'" class="button"/>'.NL;
