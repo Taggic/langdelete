@@ -1,4 +1,4 @@
-===== Set Language option(s) that you want to keep! =====
-Please insert here the ISO codes for languages you want to keep (beside English). In the event you want to keep English only then \\
-please insert //en//. An empty input field will not cause any effect to prevent any misuse/operation error. Please separate the ISO \\
-language codes by comma if you want to keep multiple languages.
+Languages are represented by their ISO 639-1 two-letter codes. For example German is ''de'' and French is ''fr''.\\
+The full list is available on Wikipedia at [[wp>List_of_ISO_639-1_codes]] or from the [[http://www.loc.gov/standards/iso639-2/php/English_list.php|US Library of Congress]].
+
+To keep multiple languages, separate them with commas like this: ''en,fr,de''.
