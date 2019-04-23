@@ -14,6 +14,10 @@ $lang['i_runoption']        = 'Run options';
 $lang['i_dryrun']           = 'simulate only';
 $lang['btn_start']          = 'Start';
 
+$lang['installed']          = 'Installed languages:';
+$lang['dokuwiki_core']      = 'DokuWiki core:';
+$lang['templates']          = 'Templates:';
+$lang['plugins']            = 'Plugins:';
 
 $lang['h2_output']          = 'Results';
 $lang['langdelete_willmsg'] = 'The following language files will be deleted.';

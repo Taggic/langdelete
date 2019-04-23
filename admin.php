@@ -40,36 +40,65 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         // input form
         $this->_html_form();
 
-        $lang_keep = $_REQUEST['langdelete_w'];
-        $dryrun = $_REQUEST['dryrun'];
-        // language given?
-        if (!empty($lang_keep)) {
+        $langs = $this->list_languages();
 
+        if (!array_key_exists ('submit', $_REQUEST)) {
+            /* Show available languages */
+            echo '<section class="langdelete__text">';
+            echo '<p>Available languages:';
+            $this->html_print_langs($langs);
+            echo '</p>';
+            echo '</section>';
+
+        } else {
+			/* Process form */
+
+			/* Check token */
+			if (!checkSecurityToken()) {
+				echo "<p> Invalid security token</p>";
+				return;
+			}
+
+			/* Grab form data */
+			$lang_str = $_REQUEST['langdelete_w'];
+			$dryrun = $_REQUEST['dryrun'];
+
+            /* Figure out what languages to keep */
+            if (strlen ($lang_str) > 0) {
+                $lang_keep = explode(',', $lang_str);
+            }
+            $lang_keep[] = self::DEFAULT_LANG; // add 'en', the fallback
+            $lang_keep[] = $conf['lang'];      // add current lang
+            $lang_keep = array_unique($lang_keep);
+
+            $langs_to_delete = $this->_filter_out_lang ($langs, $lang_keep);
+
+			/* Display text */
             echo '<h2>'.$this->getLang('h2_output').'</h2>'.NL;
 
-            if ($dryrun==true) {
+            if ($dryrun) {
+                /* Display what will be deleted */
                 msg($this->getLang('langdelete_willmsg'), 2);
-            } else {
-                msg($this->getLang('langdelete_delmsg'), 0);
-            }
-            echo '<br />'.NL;
 
-            $arr_langs = explode(',', $lang_keep);
-            $arr_langs[] = self::DEFAULT_LANG; // add 'en'
-            $arr_langs[] = $conf['lang'];      // add current lang
-            // print_r($arr_langs);
-            $lang_keep = array_unique($arr_langs);
-
-            echo '<div class="langdelete__result">';
-            $this->_list_language_dirs(DOKU_INC.'inc', 0, $lang_keep, $dryrun);
-            $this->_list_language_dirs(DOKU_INC.'lib', 0, $lang_keep, $dryrun);
-            echo '</div>';
-
-            if ($dryrun==true) {
-                echo '<br />'.NL;
+                echo '<section class="langdelete__text">';
+                $this->html_print_langs($langs_to_delete);
+                echo '</section>';
+                
                 msg($this->getLang('langdelete_attention'), 2);
                 echo '<a href="#langdelete_inputbox">'.$this->getLang('backto_inputbox').'</a>'.NL;
-            }
+
+            } else {
+				/* Delete and report what was deleted */
+                msg($this->getLang('langdelete_delmsg'), 0);
+
+                echo '<section class="langdelete__text">';
+                $this->html_print_langs($langs_to_delete);
+                echo '</section>';
+
+				echo '<pre>';
+				$this->remove_langs($langs_to_delete);
+				echo '</pre>';
+			}
         }
     }
 
@@ -102,15 +131,57 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         echo             '<label for="dryrun">'.$this->getLang('i_dryrun').'</label>'.NL;
         echo         '</div>'.NL;
 
-        echo         '<input type="submit" value="'.$this->getLang('btn_start').'" class="button"/>'.NL;
+        echo         '<button name="submit">'.$this->getLang('btn_start').'</button>'.NL;
 
         echo     '</fieldset>'.NL;
         echo '</form>'.NL;
         echo '</div>'.NL;
     }
 
-            }
+    /** Display the languages in $langs for each module as a HTML list */
+    function html_print_langs ($langs) {
+        echo '<ul>';
+
+        // Core
+        echo '<li>'.$this->getLang('dokuwiki_core');
+        echo     '<ul class="languages">';
+        foreach ($langs['core'] as $val) {
+            echo '<li>'.$val.'</li>';
         }
+        echo     '</ul>';
+        echo '</li>';
+
+        // Templates
+        echo '<li>'.$this->getLang('templates');
+        echo     '<ul>';
+        foreach ($langs['templates'] as $name => $l) {
+            echo '<li>'.$name.':';
+            echo     '<ul class="languages">';
+            foreach ($l as $val) {
+                echo '<li>'.$val.'</li>';
+            }
+            echo     '</ul>';
+            echo '</li>';
+        }
+        echo     '</ul>';
+        echo '</li>';
+
+        // Plugins
+        echo '<li>'.$this->getLang('plugins');
+        echo     '<ul>';
+        foreach ($langs['plugins'] as $name => $l) {
+            echo '<li>'.$name.':';
+            echo     '<ul class="languages">';
+            foreach ($l as $val) {
+                echo '<li>'.$val.'</li>';
+            }
+            echo     '</ul>';
+            echo '</li>';
+        }
+        echo     '</ul>';
+        echo '</li>';
+
+        echo '</ul>';
     }
 
     function list_languages () {

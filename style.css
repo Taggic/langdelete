@@ -28,6 +28,18 @@
 #langdelete__form div.box {
   float: left;
 }
-#langdelete__form input.button {
+#langdelete__form button {
   float: right;
 }
+
+.dokuwiki .page section.langdelete__text ul,
+.dokuwiki .page section.langdelete__text ul li
+{
+    color: rgb(51, 51, 51)
+}
+
+section.langdelete__text ul.languages li {
+    display: inline-block;
+    margin: 0 0 0 0.5em;
+}
+
