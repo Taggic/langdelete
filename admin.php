@@ -109,54 +109,56 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         echo '</div>'.NL;
     }
 
-  /**
-   * This function will read the full structure of a directory. 
-   * It's recursive becuase it doesn't stop with the one directory, 
-   * it just keeps going through all of the directories in the folder you specify.
-   */
-    function _list_language_dirs($path, $level,$lang_keep,$dryrun){
-        // misleading variable $file was replaced by $dir due to foreach ist searching directories only here  
-        // Directories to ignore when listing output. Many hosts 
-        // will deny PHP access to the cgi-bin.
-        $ignore = array( 'cgi-bin', '.', '..' );
-        // Open the directory to the handle $dh
-        $dh = @opendir( $path );
-
-        // Loop through the directory
-        while( false !== ($dir = readdir($dh)) ){
-            if( !in_array( $dir, $ignore ) ){
-                // Check that this file is not to be ignored
-                if( is_dir( "$path/$dir" ) ){
-                    // Its a directory, so we need to keep reading down...
-                    $cFlag = false;
-                    foreach ($lang_keep as $f) {
-                        $tst  = strtoupper(substr("$path/$dir",strlen("$path/$dir")-strlen("/lang/".trim($f))));
-                        // do not delete the audio folders within language directories to be kept (e.g. captcha/en/audio)
-                        $tst2 = strtoupper(substr("$path/$dir",strlen("$path/$dir")-strlen("/lang/".trim($f)."/audio")));       
-                        if (($tst === strtoupper ("/lang/".trim($f))) || ($tst2 === strtoupper ("/lang/".trim($f)."/audio"))) {
-                            $cFlag = true;
-                            break;
-                        }
-                    }
-
-                    if ((stripos("$path/$dir",'lang/')>0) && ($cFlag == false)) {
-                        $dir = $path.'/'.$dir;
-                        if ($dryrun==true) {
-                            echo '<strong>'.substr($dir,strlen(DOKU_INC),strlen($dir)-strlen(DOKU_INC)).'</strong><br />';
-                        } else {
-                            // now delete the lanuage sub-folder
-                            $this->rrmdir($dir);
-                        }
-                    }  else {
-                        // Re-call this same function but on a new directory.
-                        // this is what makes function recursive.
-                        $this->_list_language_dirs( "$path/$dir", ($level+1), $lang_keep,$dryrun );
-                    }
-                }
             }
         }
-        // Close the directory handle
-        closedir( $dh );
+    }
+
+    function list_languages () {
+        // See https://www.dokuwiki.org/devel:localization
+        /** List subfolders of $dir */
+        function dir_subfolders ($dir) {
+            $sub = scandir($dir);
+            $sub = array_filter ($sub, function ($e) use ($dir) {
+                return is_dir ("$dir/$e")
+                       && !in_array ($e, array('.', '..')); 
+            } );
+            return $sub;
+        }
+
+        function list_templates () {
+            return dir_subfolders (DOKU_INC."lib/tpl");
+        }
+
+        function array_prefix ($arr, $prefix) {
+            return array_map (
+                function ($p) use ($prefix) { return $prefix.$p; },
+                $arr);
+        }
+
+        /** List languages available for the module (core, template or plugin)
+         * given its $root directory
+         */
+        function list_langs ($root) {
+            $dir = "$root/lang";
+            if (!is_dir ($dir)) return;
+
+            return dir_subfolders ($dir);
+        }
+
+        global $plugin_controller;
+        $plugins = $plugin_controller->getList();
+        $templates = list_templates();
+
+        $dirs = array(
+            "core" => list_langs (DOKU_INC."inc"),
+            "templates" => array_combine ($templates,
+                array_map (list_langs,
+                    array_prefix ($templates, DOKU_INC."lib/tpl/"))),
+            "plugins" => array_combine ($plugins,
+                array_map (list_langs,
+                    array_prefix ($plugins, DOKU_PLUGIN)))
+        );
+        return $dirs;
     }
 
 
