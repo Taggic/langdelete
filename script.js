@@ -35,6 +35,31 @@ jQuery( "input[name='langdelete_w']" ).on("animationend", event => {
     }
 });
 
+/* Changing the text in the form checks the right checkboxes
+ * (and animates them) */
+jQuery( "input[name='langdelete_w']" ).on('input', event => {
+    let t = jQuery( event.target ).val();
+    let langs = jQuery( "#langshortlist input[type='checkbox']" )
+        .map((i, elt) => elt.labels[0].textContent )
+        .toArray();
+    let to_check = t.split(',');
+
+	for (let lang of langs) {
+        let $e = jQuery( `input#shortlang-${lang}` );
+        let will_check = to_check.indexOf(lang) != -1;
+        if ($e.prop("checked") ^ will_check) {
+            $e
+                .prop("checked", will_check)
+                .addClass('ani-ld-text-added');
+        }
+	}
+});
+// Remove animation class when done
+jQuery( "#langshortlist input[type='checkbox']" ).on("animationend", event => {
+    if (event.originalEvent.animationName == 'ld-text-added') {
+        jQuery( event.target ).removeClass('ani-ld-text-added');
+    }
+});
 /* */
 });
 

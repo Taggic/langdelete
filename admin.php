@@ -15,11 +15,11 @@ if(!defined('DOKU_INC')) die();
  * { "core": [ $lang... ],
  *      "templates": [ $tpl_name: [ $lang... ], ... ],
  *      "plugins": [ $plugin_name: [ $lang... ], ... ]
- * } 
+ * }
  *     where $lang is a DokuWiki language code
  *           $tpl_name is the template name
  *           $plugin_name is the plugin name
- *  The $lang arrays are zero-indexed 
+ *  The $lang arrays are zero-indexed
  */
 
 /**
@@ -150,7 +150,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
                 $this->print_shortlist ($d);
                 $this->html_print_langs($d->langs, $d->lang_keep);
                 echo '</section>';
-                
+
                 msg($this->getLang('langdelete_attention'), 2);
                 echo '<a href="#langdelete_inputbox">'.$this->getLang('backto_inputbox').'</a>'.NL;
 
@@ -297,7 +297,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
             $sub = scandir($dir);
             $sub = array_filter ($sub, function ($e) use ($dir) {
                 return is_dir ("$dir/$e")
-                       && !in_array ($e, array('.', '..')); 
+                       && !in_array ($e, array('.', '..'));
             } );
             return $sub;
         };
@@ -331,7 +331,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
     }
 
     /** Remove $lang_keep from the module languages $e
-     * 
+     *
      * Signature: ^Lang, Array => ^Lang */
     private function _filter_out_lang ($e, $lang_keep) {
         if (count ($e) > 0 && is_array (array_values($e)[0])) {
