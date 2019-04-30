@@ -32,20 +32,53 @@
   float: right;
 }
 
+/*** Text ***/
+
 /* To be at least as secific as the dokuwiki stylesheet */
 .dokuwiki .page section.langdelete__text ul,
 .dokuwiki .page section.langdelete__text ul li
 {
-    color: rgb(51, 51, 51)
+	/* Reset text color */
+    color: rgb(51, 51, 51);
 }
 
-.dokuwiki .page section.langdelete__text ul.languages li
-{
-    color: rgb(127, 0, 0)
+section.langdelete__text #langshortlist {
+	padding: 0 0 0 0.6ch;
+}
+
+section.langdelete__text ul.languages {
+	display: inline;
+	margin: 0 0.3ch;
 }
 
 section.langdelete__text ul.languages li {
-    display: inline-block;
-    margin: 0 0 0 0.5em;
+    display: inline;
+    margin: 0 0.2ch;
+	border-radius: 0.5ex; 
+	padding: 0 0.2ch;
 }
 
+section.langdelete__text li.active span.module {
+	color: navy;
+	font-weight: bold;
+}
+
+section.langdelete__text ul.languages li.active {
+	background: #e0f5ff;
+	font-weight: bold;
+}
+
+section.langdelete__text.to-delete ul.languages li del {
+    color: #800;
+}
+
+/*** Animation ***/
+.ani-ld-text-added {
+    animation: 0.1s linear ld-text-added;
+}
+
+@keyframes ld-text-added {
+    from {}
+    50% { transform: translateY(-0.5ex); }
+    to {}
+}
