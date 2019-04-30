@@ -35,8 +35,8 @@
 /*** Text ***/
 
 /* To be at least as secific as the dokuwiki stylesheet */
-.dokuwiki .page section.langdelete__text ul,
-.dokuwiki .page section.langdelete__text ul li
+.page section.langdelete__text ul,
+.page section.langdelete__text ul li
 {
 	/* Reset text color */
     color: rgb(51, 51, 51);
@@ -44,6 +44,24 @@
 
 section.langdelete__text #langshortlist {
 	padding: 0 0 0 0.6ch;
+}
+
+section.langdelete__text #langshortlist label {
+    margin-left: 0.5ch;
+}
+
+/* Checked checkboxes strikes through the label */
+section.langdelete__text #langshortlist input[type="checkbox"] ~ label,
+section.langdelete__text #langshortlist input[type="checkbox"] ~ label del
+{
+    color: #800;
+    text-decoration: line-through;
+}
+section.langdelete__text #langshortlist input[type="checkbox"]:checked ~ label,
+section.langdelete__text #langshortlist input[type="checkbox"]:checked ~ label del
+{
+    color: inherit;
+    text-decoration: none;
 }
 
 section.langdelete__text ul.languages {
@@ -54,25 +72,34 @@ section.langdelete__text ul.languages {
 section.langdelete__text ul.languages li {
     display: inline;
     margin: 0 0.2ch;
-	border-radius: 0.5ex; 
+	border-radius: 0.5ex;
 	padding: 0 0.2ch;
 }
 
+/* Highlight text if active in langlonglist */
 section.langdelete__text li.active span.module {
 	color: navy;
 	font-weight: bold;
 }
-
 section.langdelete__text ul.languages li.active {
 	background: #e0f5ff;
 	font-weight: bold;
 }
 
-section.langdelete__text.to-delete ul.languages li del {
+/* strike text if li.enabled in langlonglist */
+section.langdelete__text ul.languages li,
+section.langdelete__text ul.languages li del {
+    text-decoration: line-through;
     color: #800;
+}
+section.langdelete__text ul.languages li.enabled,
+section.langdelete__text ul.languages li.enabled del {
+    text-decoration: none;
+    color: inherit;
 }
 
 /*** Animation ***/
+/* jump briefly */
 .ani-ld-text-added {
     animation: 0.1s linear ld-text-added;
 }

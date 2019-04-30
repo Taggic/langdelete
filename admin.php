@@ -49,6 +49,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         $langs =& $d->langs;
         // $u_langs is in alphabetical (?) order because directory listing
         $d->u_langs = $this->lang_unique($langs);
+        $u_langs =& $d->u_langs;
         $lang_keep[] = self::DEFAULT_LANG; // add 'en', the fallback
         $lang_keep[] = $conf['lang'];      // add current lang
 
@@ -69,6 +70,9 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
             if (strlen ($lang_str) > 0) {
                 $lang_keep = array_merge ($lang_keep, explode(',', $lang_str));
             }
+        } else {
+            // Keep every language on first run
+            $lang_keep = $u_langs;
         }
 
         $lang_keep = array_values(array_filter(array_unique($lang_keep)));
@@ -84,10 +88,12 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
                 || array_diff ($shortlang, $lang_keep))
             {
                 $d->discrepancy = True;
-                $d->dryrun = True;
             }
 
             $d->langs_to_delete = $this->_filter_out_lang ($langs, $lang_keep);
+        } else {
+            // Keep every language on first run
+            $d->shortlang = $u_langs;
         }
     }
 
@@ -208,8 +214,11 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         $shortlang =& $d->shortlang;
 
         echo '<ul id="langshortlist" class="languages">';
+        # As the disabled input won't POST
+        echo '<input type="hidden" name="shortlist['.self::DEFAULT_LANG.']"'
+            .' form="langdelete__form" />';
         foreach ($d->u_langs as $l) {
-            echo '<li>';
+            echo '<li'.(in_array ($l, $shortlang) ? ' class="enabled"' : '').'>';
             echo '<input type="checkbox" id="shortlang-'.$l.'" name="shortlist['.$l.']"'
                 .' form="langdelete__form"'
                 .(in_array($l, $shortlang) || $l == self::DEFAULT_LANG
@@ -240,7 +249,9 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         $print_lang_li = function ($langs) use ($keep) {
             echo '<ul class="languages">';
             foreach ($langs as $val) {
-                echo '<li val="'.$val.'">';
+                echo '<li val="'.$val.'"'
+                    .(is_null($keep) || in_array ($val, $keep) ? ' class="enabled"' : '')
+                    .'>';
                 if (is_null($keep) || in_array ($val, $keep)) {
                     echo $val;
                 } else {

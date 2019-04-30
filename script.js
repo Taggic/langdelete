@@ -16,7 +16,7 @@ jQuery( "#langshortlist" ).children().each((i, elt) => {
     });
 });
 
-/* Checking the shortlist boxes updates the text form */
+/* Checking the shortlist boxes updates the text form and the longlist */
 jQuery("#langshortlist input").each((i, elt) => {
     elt.addEventListener('change', event => {
         let checkboxes = jQuery( "#langshortlist input" ).toArray();
@@ -26,6 +26,17 @@ jQuery("#langshortlist input").each((i, elt) => {
         jQuery( "input[name='langdelete_w']" )
             .val(text)
             .addClass('ani-ld-text-added');
+    });
+    elt.addEventListener('change', event => {
+        let lang = event.target.labels[0].textContent;
+        let $elt = jQuery( event.target );
+        if ($elt.prop("checked")) {
+            jQuery( `#langlonglist li[val=${lang}]` ).addClass('enabled');
+            $elt.parents("li").first().addClass('enabled');
+        } else {
+            jQuery( `#langlonglist li[val=${lang}]` ).removeClass('enabled');
+            $elt.parents("li").first().removeClass('enabled');
+        }
     });
 });
 // Remove animation class when done
