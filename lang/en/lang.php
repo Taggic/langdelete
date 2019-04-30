@@ -14,12 +14,13 @@ $lang['i_runoption']        = 'Run options';
 $lang['i_dryrun']           = 'simulate only';
 $lang['btn_start']          = 'Start';
 
-$lang['installed']          = 'Installed languages:';
+$lang['available_langs']    = 'Available languages:';
 $lang['dokuwiki_core']      = 'DokuWiki core:';
 $lang['templates']          = 'Templates:';
 $lang['plugins']            = 'Plugins:';
 
 $lang['h2_output']          = 'Results';
+$lang['discrepancy_warn']   = 'Discrepancy found between the text form and the checkboxes';
 $lang['langdelete_willmsg'] = 'The following language files will be deleted.';
 $lang['langdelete_delmsg']  = 'The following language files have been deleted.';
 $lang['langdelete_attention'] = 'Please ensure that you chose the right languages. There is no going back.';
