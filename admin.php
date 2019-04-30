@@ -9,6 +9,18 @@
 // must be run within Dokuwiki
 if(!defined('DOKU_INC')) die();
 
+/** Implicit data type:
+ *
+ * ^Lang is an array that looks like the following
+ * { "core": [ $lang... ],
+ *      "templates": [ $tpl_name: [ $lang... ], ... ],
+ *      "plugins": [ $plugin_name: [ $lang... ], ... ]
+ * } 
+ *     where $lang is a DokuWiki language code
+ *           $tpl_name is the template name
+ *           $plugin_name is the plugin name
+ *  The $lang arrays are zero-indexed 
+ */
 
 /**
  * All DokuWiki plugins to extend the admin function
@@ -16,7 +28,8 @@ if(!defined('DOKU_INC')) die();
  */
 class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
 
-    const DEFAULT_LANG = 'en'; // fallback language
+    /** Fallback language */
+    const DEFAULT_LANG = 'en';
 
     /** return sort order for position in admin menu */
     function getMenuSort() { return 20; }
@@ -184,90 +197,94 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         echo '</ul>';
     }
 
-    function list_languages () {
+    /** Returns the available languages for each module
+     * (core, template or plugin)
+     *
+     * Signature: () => ^Lang
+     */
+    private function list_languages () {
         // See https://www.dokuwiki.org/devel:localization
-        /** List subfolders of $dir */
-        function dir_subfolders ($dir) {
+
+        /* Returns the subfolders of $dir as an array */
+        $dir_subfolders = function ($dir) {
             $sub = scandir($dir);
             $sub = array_filter ($sub, function ($e) use ($dir) {
                 return is_dir ("$dir/$e")
                        && !in_array ($e, array('.', '..')); 
             } );
             return $sub;
-        }
+        };
 
-        function list_templates () {
-            return dir_subfolders (DOKU_INC."lib/tpl");
-        }
+        $list_templates = function () use ($dir_subfolders) {
+            return $dir_subfolders (DOKU_INC."lib/tpl");
+        };
 
-        function array_prefix ($arr, $prefix) {
-            return array_map (
-                function ($p) use ($prefix) { return $prefix.$p; },
-                $arr);
-        }
-
-        /** List languages available for the module (core, template or plugin)
-         * given its $root directory
-         */
-        function list_langs ($root) {
+        /* Return an array of languages available for the module
+         * (core, template or plugin) given its $root directory */
+        $list_langs = function ($root) use ($dir_subfolders) {
             $dir = "$root/lang";
             if (!is_dir ($dir)) return;
 
-            return dir_subfolders ($dir);
-        }
+            return $dir_subfolders ($dir);
+        };
 
         global $plugin_controller;
         $plugins = $plugin_controller->getList();
-        $templates = list_templates();
+        $templates = $list_templates();
 
-        $dirs = array(
-            "core" => list_langs (DOKU_INC."inc"),
+        return array(
+            "core" => $list_langs (DOKU_INC."inc"),
             "templates" => array_combine ($templates,
-                array_map (list_langs,
+                array_map ($list_langs,
                     array_prefix ($templates, DOKU_INC."lib/tpl/"))),
             "plugins" => array_combine ($plugins,
-                array_map (list_langs,
+                array_map ($list_langs,
                     array_prefix ($plugins, DOKU_PLUGIN)))
         );
-        return $dirs;
     }
 
-	/** Remove $lang_keep from &$e as return by $this->list_languages() */
-	function _filter_out_lang (&$e, $lang_keep) {
-		if (count ($e) > 0 && is_array (array_values($e)[0])) {
-			foreach ($e as $k => $elt) {
-				$out[$k] = $this->_filter_out_lang ($elt, $lang_keep);
-			}
-			return $out;
+    /** Remove $lang_keep from the module languages $e
+     * 
+     * Signature: ^Lang, Array => ^Lang */
+    private function _filter_out_lang ($e, $lang_keep) {
+        if (count ($e) > 0 && is_array (array_values($e)[0])) {
+            foreach ($e as $k => $elt) {
+                $out[$k] = $this->_filter_out_lang ($elt, $lang_keep);
+            }
+            return $out;
 
-		} else {
-			return array_filter ($e, function ($v) use ($lang_keep) {
-				return !in_array ($v, $lang_keep);
-			});
-		}
-	}
+        } else {
+            return array_filter ($e, function ($v) use ($lang_keep) {
+                return !in_array ($v, $lang_keep);
+            });
+        }
+    }
 
-	/** Delete the languages from the modules as specified by $langs */
-	function remove_langs($langs) {
-		foreach ($langs['core'] as $l) {
-			$this->rrm(DOKU_INC."inc/lang/$l");
-		}
 
-		foreach ($langs['templates'] as $tpl => $arr) {
-			foreach ($arr as $l) {
-				$this->rrm(DOKU_INC."lib/tpl/$tpl/lang/$l");
-			}
-		}
 
-		foreach ($langs['plugins'] as $plug => $arr) {
-			foreach ($arr as $l) {
-				$this->rrm(DOKU_INC."lib/plugins/$plug/lang/$l");
-			}
-		}
-	}
+    /** Delete the languages from the modules as specified by $langs
+     *
+     * Signature: ^Lang => () */
+    private function remove_langs($langs) {
+        foreach ($langs['core'] as $l) {
+            $this->rrm(DOKU_INC."inc/lang/$l");
+        }
 
-    /** Recursive file removal with reporting */
-    function rrm ($path) {
+        foreach ($langs['templates'] as $tpl => $arr) {
+            foreach ($arr as $l) {
+                $this->rrm(DOKU_INC."lib/tpl/$tpl/lang/$l");
+            }
+        }
+
+        foreach ($langs['plugins'] as $plug => $arr) {
+            foreach ($arr as $l) {
+                $this->rrm(DOKU_INC."lib/plugins/$plug/lang/$l");
+            }
+        }
+    }
+
+    /** Recursive file removal of $path with reporting */
+    private function rrm ($path) {
         if (is_dir ($path)) {
             $objects = scandir ($path);
             foreach ($objects as $object) {
@@ -277,11 +294,18 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
             }
             $sucess = @rmdir ($path);
             if (!$sucess) { echo "Failed to delete $path/\n"; }
-			else echo "Delete $path\n";
+            else echo "Delete $path\n";
         } else {
             $sucess = @unlink ($path);
             if (!$sucess) { echo "Failed to delete $path\n"; }
-			else echo "Delete $path\n";
+            else echo "Delete $path\n";
         }
     }
+}
+
+/** Returns an array with each element of $arr prefixed with $prefix */
+function array_prefix ($arr, $prefix) {
+    return array_map (
+        function ($p) use ($prefix) { return $prefix.$p; },
+        $arr);
 }
