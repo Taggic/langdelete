@@ -22,6 +22,20 @@ if(!defined('DOKU_INC')) die();
  *  The $lang arrays are zero-indexed
  */
 
+/** CSS Classes:
+ *
+ * ul.languages is an inline list of language codes
+ *   if li.active is set, the text will be highlighted
+ *   if li.enabled is set, the text is normal,
+ *       otherwise it's red and striked-out
+ * .module is set on text that represent module names: template names,
+ *     plugin names and "dokuwiki"
+ *
+ * #langshortlist is the list of language with checkboxes
+ * #langlonglist is the list of list of languages available for each module
+ * .langdelete__text is the class set on the section wrapper around all the text
+ */
+
 /**
  * All DokuWiki plugins to extend the admin function
  * need to inherit from this class
@@ -30,7 +44,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
 
     /** Fallback language */
     const DEFAULT_LANG = 'en';
-    /** data variable for ->handle() => ->html() */
+    /** data stdObject  assigned by ->handle() and used in ->html() */
     private $d;
 
     /** return sort order for position in admin menu */
@@ -45,14 +59,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         $d->submit = isset($_REQUEST['submit']);
         $submit =& $d->submit;
 
-        $d->langs = $this->list_languages();
-        $langs =& $d->langs;
-        // $u_langs is in alphabetical (?) order because directory listing
-        $d->u_langs = $this->lang_unique($langs);
-        $u_langs =& $d->u_langs;
-        $lang_keep[] = self::DEFAULT_LANG; // add 'en', the fallback
-        $lang_keep[] = $conf['lang'];      // add current lang
-
+		/* Check security token */
         if ($submit) {
             $valid =& $d->valid;
             $valid = True;
@@ -60,12 +67,27 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
                 $valid = False;
                 return;
             }
-            /* Process form */
+		}
 
-            /* Grab form data */
+		/* Set DokuWiki language info */
+        $d->langs = $this->list_languages();
+        $langs =& $d->langs;
+
+        // $u_langs is in alphabetical (?) order because directory listing
+        $d->u_langs = $this->lang_unique($langs);
+        $u_langs =& $d->u_langs;
+
+		/* Grab form data */
+		if ($submit) {
+			$d->dryrun = $_REQUEST['dryrun'];
             $lang_str = $_REQUEST['langdelete_w'];
-            $d->dryrun = $_REQUEST['dryrun'];
+		}
 
+		/* What languages do we keep ? */
+        $lang_keep[] = self::DEFAULT_LANG; // add 'en', the fallback
+        $lang_keep[] = $conf['lang'];      // add current lang
+
+        if ($submit) {
             /* Add form data to languages to keep */
             if (strlen ($lang_str) > 0) {
                 $lang_keep = array_merge ($lang_keep, explode(',', $lang_str));
@@ -78,6 +100,12 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         $lang_keep = array_values(array_filter(array_unique($lang_keep)));
         $d->lang_keep =& $lang_keep;
 
+		/* Prepare data for deletion */
+		if ($submit) {
+            $d->langs_to_delete = $this->_filter_out_lang ($langs, $lang_keep);
+		}
+
+		/* What do the checkboxes say ? */
         if ($submit) {
             /* Grab checkboxes */
             $d->shortlang = array_keys ($_REQUEST['shortlist']);
@@ -89,8 +117,6 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
             {
                 $d->discrepancy = True;
             }
-
-            $d->langs_to_delete = $this->_filter_out_lang ($langs, $lang_keep);
         } else {
             // Keep every language on first run
             $d->shortlang = $u_langs;
@@ -108,6 +134,9 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
     function html() {
         global $conf; // access DW configuration array
         $d =& $this->d; // from ->handle()
+
+        // In case we want to fetch the files from gh
+        #$version = getVersionData();
 
         // langdelete__intro
         echo $this->locale_xhtml('intro');
@@ -130,7 +159,6 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
             echo $this->getLang('available_langs');
             $this->print_shortlist ($d);
             $this->html_print_langs($d->langs);
-            echo '</p>';
             echo '</section>';
 
         } else {
@@ -151,7 +179,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
             if ($d->dryrun) {
                 /* Display what will be deleted */
                 msg($this->getLang('langdelete_willmsg'), 2);
-                echo '<section class="langdelete__text to-delete">';
+                echo '<section class="langdelete__text">';
                 echo $this->getLang('available_langs');
                 $this->print_shortlist ($d);
                 $this->html_print_langs($d->langs, $d->lang_keep);
@@ -164,7 +192,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
                 /* Delete and report what was deleted */
                 msg($this->getLang('langdelete_delmsg'), 0);
 
-                echo '<section class="langdelete__text to-delete">';
+                echo '<section class="langdelete__text">';
                 $this->html_print_langs($d->langs_to_delete);
                 echo '</section>';
 
@@ -214,25 +242,31 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         $shortlang =& $d->shortlang;
 
         echo '<ul id="langshortlist" class="languages">';
+
         # As the disabled input won't POST
         echo '<input type="hidden" name="shortlist['.self::DEFAULT_LANG.']"'
             .' form="langdelete__form" />';
+
         foreach ($d->u_langs as $l) {
-            echo '<li'.(in_array ($l, $shortlang) ? ' class="enabled"' : '').'>';
-            echo '<input type="checkbox" id="shortlang-'.$l.'" name="shortlist['.$l.']"'
+            $checked = in_array($l, $shortlang) || $l == self::DEFAULT_LANG;
+
+            echo '<li'.($checked ? ' class="enabled"' : '').'>';
+
+            echo '<input type="checkbox" id="shortlang-'.$l.'"'
+                .' name="shortlist['.$l.']"'
                 .' form="langdelete__form"'
-                .(in_array($l, $shortlang) || $l == self::DEFAULT_LANG
-                    ? ' checked'
-                    : '')
+                .($checked ? ' checked' : '')
                 .($l == self::DEFAULT_LANG ? ' disabled' : '')
                 .' />';
+
             echo '<label for="shortlang-'.$l.'">';
-            if (in_array ($l, $shortlang) || $l == self::DEFAULT_LANG) {
+            if ($checked) {
                 echo $l;
             } else {
                 echo '<del>'.$l.'</del>';
             }
             echo '</label>';
+
             echo '</li>';
         }
         echo '</ul>';
@@ -249,10 +283,13 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         $print_lang_li = function ($langs) use ($keep) {
             echo '<ul class="languages">';
             foreach ($langs as $val) {
+                // If $keep is null, we keep everything
+                $enabled = is_null($keep) || in_array ($val, $keep);
+
                 echo '<li val="'.$val.'"'
-                    .(is_null($keep) || in_array ($val, $keep) ? ' class="enabled"' : '')
+                    .($enabled ? ' class="enabled"' : '')
                     .'>';
-                if (is_null($keep) || in_array ($val, $keep)) {
+                if ($enabled) {
                     echo $val;
                 } else {
                     echo '<del>'.$val.'</del>';
@@ -313,6 +350,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
             return $sub;
         };
 
+        /* Return an array of template names */
         $list_templates = function () use ($dir_subfolders) {
             return $dir_subfolders (DOKU_INC."lib/tpl");
         };
@@ -326,6 +364,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
             return $dir_subfolders ($dir);
         };
 
+        /* Get templates and plugins names */
         global $plugin_controller;
         $plugins = $plugin_controller->getList();
         $templates = $list_templates();
@@ -345,6 +384,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
      *
      * Signature: ^Lang, Array => ^Lang */
     private function _filter_out_lang ($e, $lang_keep) {
+        // Recursive function with cases being an array of arrays, or an array
         if (count ($e) > 0 && is_array (array_values($e)[0])) {
             foreach ($e as $k => $elt) {
                 $out[$k] = $this->_filter_out_lang ($elt, $lang_keep);

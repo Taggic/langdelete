@@ -71,7 +71,6 @@ jQuery( "#langshortlist input[type='checkbox']" ).on("animationend", event => {
         jQuery( event.target ).removeClass('ani-ld-text-added');
     }
 });
+
 /* */
 });
-
-

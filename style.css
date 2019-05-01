@@ -34,42 +34,43 @@
 
 /*** Text ***/
 
-/* To be at least as secific as the dokuwiki stylesheet */
-.page section.langdelete__text ul,
+/* To be at least as secific as the dokuwiki stylesheet which is:
+ * .dokuwiki .page ul li
+ */
 .page section.langdelete__text ul li
 {
 	/* Reset text color */
     color: rgb(51, 51, 51);
 }
 
-section.langdelete__text #langshortlist {
+/* style #langshortlist */
+.langdelete__text #langshortlist {
 	padding: 0 0 0 0.6ch;
 }
-
-section.langdelete__text #langshortlist label {
+.langdelete__text #langshortlist label {
     margin-left: 0.5ch;
 }
 
 /* Checked checkboxes strikes through the label */
-section.langdelete__text #langshortlist input[type="checkbox"] ~ label,
-section.langdelete__text #langshortlist input[type="checkbox"] ~ label del
+.langdelete__text #langshortlist input[type="checkbox"] ~ label,
+.langdelete__text #langshortlist input[type="checkbox"] ~ label del
 {
     color: #800;
     text-decoration: line-through;
 }
-section.langdelete__text #langshortlist input[type="checkbox"]:checked ~ label,
-section.langdelete__text #langshortlist input[type="checkbox"]:checked ~ label del
+.langdelete__text #langshortlist input[type="checkbox"]:checked ~ label,
+.langdelete__text #langshortlist input[type="checkbox"]:checked ~ label del
 {
     color: inherit;
     text-decoration: none;
 }
 
-section.langdelete__text ul.languages {
+/* Style ul.languages which is an inline list of languages */
+.langdelete__text ul.languages {
 	display: inline;
 	margin: 0 0.3ch;
 }
-
-section.langdelete__text ul.languages li {
+.langdelete__text ul.languages li {
     display: inline;
     margin: 0 0.2ch;
 	border-radius: 0.5ex;
@@ -77,23 +78,23 @@ section.langdelete__text ul.languages li {
 }
 
 /* Highlight text if active in langlonglist */
-section.langdelete__text li.active span.module {
+.langdelete__text li.active .module {
 	color: navy;
 	font-weight: bold;
 }
-section.langdelete__text ul.languages li.active {
+.langdelete__text ul.languages li.active {
 	background: #e0f5ff;
 	font-weight: bold;
 }
 
 /* strike text if li.enabled in langlonglist */
-section.langdelete__text ul.languages li,
-section.langdelete__text ul.languages li del {
+.langdelete__text ul.languages li,
+.langdelete__text ul.languages li del {
     text-decoration: line-through;
     color: #800;
 }
-section.langdelete__text ul.languages li.enabled,
-section.langdelete__text ul.languages li.enabled del {
+.langdelete__text ul.languages li.enabled,
+.langdelete__text ul.languages li.enabled del {
     text-decoration: none;
     color: inherit;
 }
