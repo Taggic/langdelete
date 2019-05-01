@@ -1,0 +1,4 @@
+Chaque langue est représentée par son code ISO 639-1 à deux lettres. Par exemple l'allemend donne ''de'' et le français donne ''fr''.\\
+La liste complète des codes est consultable sur Wikipedia sous [[https://fr.wikipedia.org/wiki/Liste_des_codes_ISO_639-1 |Liste des codes ISO 639-1]].
+
+Pour gardez plusieurs langues, séparez les codes avec des virgule comme ceci : ''en,fr,de''.
