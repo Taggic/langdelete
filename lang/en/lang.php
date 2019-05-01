@@ -21,6 +21,7 @@ $lang['plugins']            = 'Plugins:';
 
 $lang['h2_output']          = 'Results';
 $lang['discrepancy_warn']   = 'Discrepancy found between the text form and the checkboxes';
+$lang['nolang']             = 'The following languages do not exist: ';
 $lang['langdelete_willmsg'] = 'The following language files will be deleted.';
 $lang['langdelete_delmsg']  = 'The following language files have been deleted.';
 $lang['langdelete_attention'] = 'Please ensure that you chose the right languages. There is no going back.';

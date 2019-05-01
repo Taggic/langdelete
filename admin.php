@@ -100,6 +100,12 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         $lang_keep = array_values(array_filter(array_unique($lang_keep)));
         $d->lang_keep =& $lang_keep;
 
+        /* Does the language we want to keep actually exist ? */
+        $non_langs = array_diff ($lang_keep, $u_langs);
+        if ($non_langs) {
+            $d->nolang_s = implode (",", $non_langs);
+        }
+
 		/* Prepare data for deletion */
 		if ($submit) {
             $d->langs_to_delete = $this->_filter_out_lang ($langs, $lang_keep);
@@ -172,6 +178,9 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
 
             if ($d->discrepancy) {
                 msg($this->getLang('discrepancy_warn'), 2);
+            }
+            if ($d->nolang_s) {
+                msg($this->getLang('nolang') . $d->nolang_s , 2);
             }
 
             echo '<h2>'.$this->getLang('h2_output').'</h2>'.NL;
