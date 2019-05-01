@@ -1,7 +1,7 @@
 base    langdelete
-author  Taggic
+author  Taggic, Satoshi Sahara, Tilwa Qendov
 email   taggic@t-online.de
-date    2017-03-20
+date    2019-05-01
 name    LangDelete
 desc    provides admin delete function for unneccessary language files and folders
 url     http://www.dokuwiki.org/plugin:langdelete
