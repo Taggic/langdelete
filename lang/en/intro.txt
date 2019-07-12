@@ -1,10 +1,5 @@
 ====== Delete languages ======
-=== Quick Help: ===
 
-On this page you can delete all language files and folders of your DokuWiki to reduce the space consumption on your web host. \\ 
-Simply define the language you want to keep. English as fundamental requirement will be kept also. All other language files and \\  
-folders of inc and lib directory will be deleted. Reading the [[doku>plugin:langdelete|plugin description]] might help your understanding of the functionality \\ 
-and delivering update information. 
-
-Developers of DokuWiki are asked to use ISO 639-1 two-letter codes for language abbreviation. Two-letter codes can be retrieved \\ 
-from [[wp>List_of_ISO_639-1_codes]] or from [[http://www.loc.gov/standards/iso639-2/php/English_list.php|US Library of Congress]].
+This page lets you delete some languages files of your DokuWiki install to save space.
+Just specify which languages you wish to keep. English and the current language will be kept.
+Read the [[doku>plugin:langdelete|plugin description]] for more information about its features and how to update it.

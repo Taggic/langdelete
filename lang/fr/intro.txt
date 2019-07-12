@@ -1,0 +1,5 @@
+====== Supprimer des langues ======
+
+Cette page vous permet de supprimer des fichiers de langue de l'installation de DokuWiki pour faire de la place.
+Notez les langues que vous voulez conserver. L'anglais et la langue actuelle seront conservés.
+Lisez [[doku>plugin:langdelete|la description du greffon]] plus de renseignements concernant ses fonctionalités et comment le mettre à jour.

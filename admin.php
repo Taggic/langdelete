@@ -9,6 +9,32 @@
 // must be run within Dokuwiki
 if(!defined('DOKU_INC')) die();
 
+/** Implicit data type:
+ *
+ * ^Lang is an array that looks like the following
+ * { "core": [ $lang... ],
+ *      "templates": [ $tpl_name: [ $lang... ], ... ],
+ *      "plugins": [ $plugin_name: [ $lang... ], ... ]
+ * }
+ *     where $lang is a DokuWiki language code
+ *           $tpl_name is the template name
+ *           $plugin_name is the plugin name
+ *  The $lang arrays are zero-indexed
+ */
+
+/** CSS Classes:
+ *
+ * ul.languages is an inline list of language codes
+ *   if li.active is set, the text will be highlighted
+ *   if li.enabled is set, the text is normal,
+ *       otherwise it's red and striked-out
+ * .module is set on text that represent module names: template names,
+ *     plugin names and "dokuwiki"
+ *
+ * #langshortlist is the list of language with checkboxes
+ * #langlonglist is the list of list of languages available for each module
+ * .langdelete__text is the class set on the section wrapper around all the text
+ */
 
 /**
  * All DokuWiki plugins to extend the admin function
@@ -16,78 +42,172 @@ if(!defined('DOKU_INC')) die();
  */
 class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
 
-    const DEFAULT_LANG = 'en'; // this must be kept
+    /** Fallback language */
+    const DEFAULT_LANG = 'en';
+    /** data stdObject  assigned by ->handle() and used in ->html() */
+    private $d;
 
-    /**
-     * return sort order for position in admin menu
-     */
-    function getMenuSort() {
-        return 20;
-    }
+    /** return sort order for position in admin menu */
+    function getMenuSort() { return 20; }
 
-    /**
-     * handle user request
-     *
-     * Initializes internal vars and handles modifications
-     *
-     * @author Taggic <taggic@t-online.de>
-     */
+    /** Called when dispatching the DokuWiki action;
+     * Puts the required data for ->html() in $->d */
     function handle() {
-        global $ID;
+        $d =& $this->d;
+        $d = new stdClass; // reset
+
+        $d->submit = isset($_REQUEST['submit']);
+        $submit =& $d->submit;
+
+		/* Check security token */
+        if ($submit) {
+            $valid =& $d->valid;
+            $valid = True;
+            if (!checkSecurityToken()) {
+                $valid = False;
+                return;
+            }
+		}
+
+		/* Set DokuWiki language info */
+        $d->langs = $this->list_languages();
+        $langs =& $d->langs;
+
+        // $u_langs is in alphabetical (?) order because directory listing
+        $d->u_langs = $this->lang_unique($langs);
+        $u_langs =& $d->u_langs;
+
+		/* Grab form data */
+		if ($submit) {
+			$d->dryrun = $_REQUEST['dryrun'];
+            $lang_str = $_REQUEST['langdelete_w'];
+		}
+
+		/* What languages do we keep ? */
+        $lang_keep[] = self::DEFAULT_LANG; // add 'en', the fallback
+        $lang_keep[] = $conf['lang'];      // add current lang
+
+        if ($submit) {
+            /* Add form data to languages to keep */
+            if (strlen ($lang_str) > 0) {
+                $lang_keep = array_merge ($lang_keep, explode(',', $lang_str));
+            }
+        } else {
+            // Keep every language on first run
+            $lang_keep = $u_langs;
+        }
+
+        $lang_keep = array_values(array_filter(array_unique($lang_keep)));
+        $d->lang_keep =& $lang_keep;
+
+        /* Does the language we want to keep actually exist ? */
+        $non_langs = array_diff ($lang_keep, $u_langs);
+        if ($non_langs) {
+            $d->nolang_s = implode (",", $non_langs);
+        }
+
+		/* Prepare data for deletion */
+		if ($submit) {
+            $d->langs_to_delete = $this->_filter_out_lang ($langs, $lang_keep);
+		}
+
+		/* What do the checkboxes say ? */
+        if ($submit) {
+            /* Grab checkboxes */
+            $d->shortlang = array_keys ($_REQUEST['shortlist']);
+            $shortlang =& $d->shortlang;
+
+            /* Prevent discrepancy between shortlist and text form */
+            if (array_diff ($lang_keep, $shortlang)
+                || array_diff ($shortlang, $lang_keep))
+            {
+                $d->discrepancy = True;
+            }
+        } else {
+            // Keep every language on first run
+            $d->shortlang = $u_langs;
+        }
     }
 
     /**
      * langdelete Output function
      *
-     * print a table with all found lanuage folders
+     * Prints a table with all found language folders.
+     * HTML and data processing are done here at the same time
      *
      * @author  Taggic <taggic@t-online.de>
      */
     function html() {
-        global $ID;
-        global $conf;                   // access DW configuration array
+        global $conf; // access DW configuration array
+        $d =& $this->d; // from ->handle()
+
+        // In case we want to fetch the files from gh
+        #$version = getVersionData();
 
         // langdelete__intro
         echo $this->locale_xhtml('intro');
 
-        // input guidance
+        // input anchor
         echo '<a name="langdelete_inputbox"></a>'.NL;
         echo $this->locale_xhtml('guide');
-        echo '<br />'.NL;
         // input form
-        $this->_html_form();
-        echo '<br />'.NL;
+        $this->_html_form($d);
 
-        $lang_keep = $_REQUEST['langdelete_w'];
-        $dryrun = $_REQUEST['dryrun'];
-        // language given?
-        if (!empty($lang_keep)) {
+
+        $langs = $this->list_languages();
+        $u_langs = $this->lang_unique($langs);
+
+
+        /* Switch on form submission state */
+        if (!$d->submit) {
+            /* Show available languages */
+            echo '<section class="langdelete__text">';
+            echo $this->getLang('available_langs');
+            $this->print_shortlist ($d);
+            $this->html_print_langs($d->langs);
+            echo '</section>';
+
+        } else {
+            /* Process form */
+
+            /* Check token */
+            if (!$d->valid) {
+                echo "<p>Invalid security token</p>";
+                return;
+            }
+
+            if ($d->discrepancy) {
+                msg($this->getLang('discrepancy_warn'), 2);
+            }
+            if ($d->nolang_s) {
+                msg($this->getLang('nolang') . $d->nolang_s , 2);
+            }
 
             echo '<h2>'.$this->getLang('h2_output').'</h2>'.NL;
 
-            if ($dryrun==true) {
+            if ($d->dryrun) {
+                /* Display what will be deleted */
                 msg($this->getLang('langdelete_willmsg'), 2);
-            } else {
-                msg($this->getLang('langdelete_delmsg'), 0);
-            }
-            echo '<br />'.NL;
+                echo '<section class="langdelete__text">';
+                echo $this->getLang('available_langs');
+                $this->print_shortlist ($d);
+                $this->html_print_langs($d->langs, $d->lang_keep);
+                echo '</section>';
 
-            $arr_langs = explode(',', $lang_keep);
-            $arr_langs[] = self::DEFAULT_LANG; // add 'en'
-            $arr_langs[] = $conf['lang'];      // add current lang
-            // print_r($arr_langs);
-            $lang_keep = array_unique($arr_langs);
-
-            echo '<div class="langdelete__result">';
-            $this->_list_language_dirs(DOKU_INC.'inc', 0, $lang_keep, $dryrun);
-            $this->_list_language_dirs(DOKU_INC.'lib', 0, $lang_keep, $dryrun);
-            echo '</div>';
-
-            if ($dryrun==true) {
-                echo '<br />'.NL;
                 msg($this->getLang('langdelete_attention'), 2);
-                echo '<br />'.NL;
                 echo '<a href="#langdelete_inputbox">'.$this->getLang('backto_inputbox').'</a>'.NL;
+
+            } else {
+                /* Delete and report what was deleted */
+                msg($this->getLang('langdelete_delmsg'), 0);
+
+                echo '<section class="langdelete__text">';
+                $this->html_print_langs($d->langs_to_delete);
+                echo '</section>';
+
+                echo '<pre>';
+                $this->remove_langs($d->langs_to_delete);
+                echo '</pre>';
             }
         }
     }
@@ -98,14 +218,13 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
      *
      * @author  Taggic <taggic@t-online.de>
      */
-    function _html_form(){
+    private function _html_form (&$d) {
         global $ID, $conf;
 
-        echo '<div id="langdelete__form">'.NL;
-        echo '<form action="'.wl($ID).'" method="post">';
+        echo '<form id="langdelete__form" action="'.wl($ID).'" method="post">';
         echo     '<input type="hidden" name="do" value="admin" />'.NL;
-        echo     '<input type="hidden" name="page" value="langdelete" />'.NL;
-        echo     '<input type="hidden" name="sectok" value="'.getSecurityToken().'" />'.NL;
+        echo     '<input type="hidden" name="page" value="'.$this->getPluginName().'" />'.NL;
+        formSecurityToken();
 
         echo     '<fieldset class="langdelete__fieldset"><legend>'.$this->getLang('i_legend').'</legend>'.NL;
 
@@ -113,96 +232,246 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         echo         '<div class="box">'.$conf['lang'].'</div>'.NL;
 
         echo         '<label class="formTitle" for="langdelete_w">'.$this->getLang('i_shouldkeep').':</label>';
-        echo         '<input type="text" name="langdelete_w" class="edit" value="'.hsc($_REQUEST['langdelete_w']).'" />'.NL;
+        echo         '<input type="text" name="langdelete_w" class="edit" value="'.hsc(implode(',', $d->lang_keep)).'" />'.NL;
 
         echo         '<label class="formTitle" for="option">'.$this->getLang('i_runoption').':</label>';
         echo         '<div class="box">'.NL;
         echo             '<input type="checkbox" name="dryrun" checked="checked" /> ';
-        echo             '<label for "dryrun">'.$this->getLang('i_dryrun').'</label>'.NL;
+        echo             '<label for="dryrun">'.$this->getLang('i_dryrun').'</label>'.NL;
         echo         '</div>'.NL;
 
-        echo         '<input type="submit" value="'.$this->getLang('btn_start').'" class="button"/>'.NL;
+        echo         '<button name="submit">'.$this->getLang('btn_start').'</button>'.NL;
 
         echo     '</fieldset>'.NL;
         echo '</form>'.NL;
-        echo '</div>'.NL;
     }
 
-  /**
-   * This function will read the full structure of a directory. 
-   * It's recursive becuase it doesn't stop with the one directory, 
-   * it just keeps going through all of the directories in the folder you specify.
-   */
-    function _list_language_dirs($path, $level,$lang_keep,$dryrun){
-        // misleading variable $file was replaced by $dir due to foreach ist searching directories only here  
-        // Directories to ignore when listing output. Many hosts 
-        // will deny PHP access to the cgi-bin.
-        $ignore = array( 'cgi-bin', '.', '..' );
-        // Open the directory to the handle $dh
-        $dh = @opendir( $path );
+    /** Print the language shortlist and cross-out those not in $keep */
+    function print_shortlist (&$d) {
+        $shortlang =& $d->shortlang;
 
-        // Loop through the directory
-        while( false !== ($dir = readdir($dh)) ){
-            if( !in_array( $dir, $ignore ) ){
-                // Check that this file is not to be ignored
-                if( is_dir( "$path/$dir" ) ){
-                    // Its a directory, so we need to keep reading down...
-                    $cFlag = false;
-                    foreach ($lang_keep as $f) {
-                        $tst  = strtoupper(substr("$path/$dir",strlen("$path/$dir")-strlen("/lang/".trim($f))));
-                        // do not delete the audio folders within language directories to be kept (e.g. captcha/en/audio)
-                        $tst2 = strtoupper(substr("$path/$dir",strlen("$path/$dir")-strlen("/lang/".trim($f)."/audio")));       
-                        if (($tst === strtoupper ("/lang/".trim($f))) || ($tst2 === strtoupper ("/lang/".trim($f)."/audio"))) {
-                            $cFlag = true;
-                            break;
-                        }
-                    }
+        echo '<ul id="langshortlist" class="languages">';
 
-                    if ((stripos("$path/$dir",'lang/')>0) && ($cFlag == false)) {
-                        $dir = $path.'/'.$dir;
-                        if ($dryrun==true) {
-                            echo '<strong>'.substr($dir,strlen(DOKU_INC),strlen($dir)-strlen(DOKU_INC)).'</strong><br />';
-                        } else {
-                            // now delete the lanuage sub-folder
-                            $this->rrmdir($dir);
-                        }
-                    }  else {
-                        // Re-call this same function but on a new directory.
-                        // this is what makes function recursive.
-                        $this->_list_language_dirs( "$path/$dir", ($level+1), $lang_keep,$dryrun );
-                    }
-                }
+        # As the disabled input won't POST
+        echo '<input type="hidden" name="shortlist['.self::DEFAULT_LANG.']"'
+            .' form="langdelete__form" />';
+
+        foreach ($d->u_langs as $l) {
+            $checked = in_array($l, $shortlang) || $l == self::DEFAULT_LANG;
+
+            echo '<li'.($checked ? ' class="enabled"' : '').'>';
+
+            echo '<input type="checkbox" id="shortlang-'.$l.'"'
+                .' name="shortlist['.$l.']"'
+                .' form="langdelete__form"'
+                .($checked ? ' checked' : '')
+                .($l == self::DEFAULT_LANG ? ' disabled' : '')
+                .' />';
+
+            echo '<label for="shortlang-'.$l.'">';
+            if ($checked) {
+                echo $l;
+            } else {
+                echo '<del>'.$l.'</del>';
             }
+            echo '</label>';
+
+            echo '</li>';
         }
-        // Close the directory handle
-        closedir( $dh );
+        echo '</ul>';
     }
 
-    /**
-     * This function will delete all folders and files which are in the specified directory.
-     * This is necessary due to only empty directories can be deleted.
+
+    /** Display the languages in $langs for each module as a HTML list;
+     * Cross-out those not in $keep
+     *
+     * Signature: ^Lang, Array => () */
+    private function html_print_langs ($langs, $keep = null) {
+        /* Print language list, $langs being an array;
+         * Cross out those not in $keep */
+        $print_lang_li = function ($langs) use ($keep) {
+            echo '<ul class="languages">';
+            foreach ($langs as $val) {
+                // If $keep is null, we keep everything
+                $enabled = is_null($keep) || in_array ($val, $keep);
+
+                echo '<li val="'.$val.'"'
+                    .($enabled ? ' class="enabled"' : '')
+                    .'>';
+                if ($enabled) {
+                    echo $val;
+                } else {
+                    echo '<del>'.$val.'</del>';
+                }
+                echo '</li>';
+            }
+            echo '</ul>';
+        };
+
+
+        echo '<ul id="langlonglist">';
+
+        // Core
+        echo '<li><span class="module">'.$this->getLang('dokuwiki_core').'</span>';
+        $print_lang_li ($langs['core']);
+        echo '</li>';
+
+        // Templates
+        echo '<li>'.$this->getLang('templates');
+        echo     '<ul>';
+        foreach ($langs['templates'] as $name => $l) {
+            echo '<li><span class="module">'.$name.':</span>';
+            $print_lang_li ($l);
+            echo '</li>';
+        }
+        echo     '</ul>';
+        echo '</li>';
+
+        // Plugins
+        echo '<li>'.$this->getLang('plugins');
+        echo     '<ul>';
+        foreach ($langs['plugins'] as $name => $l) {
+            echo '<li><span class="module">'.$name.':</span>';
+            $print_lang_li ($l);
+            echo '</li>';
+        }
+        echo     '</ul>';
+        echo '</li>';
+
+        echo '</ul>';
+    }
+
+    /** Returns the available languages for each module
+     * (core, template or plugin)
+     *
+     * Signature: () => ^Lang
      */
-    function rrmdir($dir) {
-        // replace "//" in $dir if existing
-        $dir = str_replace('//', '/', $dir);
+    private function list_languages () {
+        // See https://www.dokuwiki.org/devel:localization
 
-        if (is_dir($dir)) {
-            $objects = scandir($dir);
-            foreach ($objects as $object) {
-                if ($object != '.' && $object != '..') {
-                    if (filetype($dir.'/'.$object) == 'dir') {
-                        $this->rrmdir($dir.'/'.$object);
-                        echo '<strong>'.$dir.'/'.$object.' -> empty directory removed</strong><br />';
-                    } else {
-                       chmod($dir.'/'.$object, 0755);
-                       $result = @unlink($dir.'/'.$object);
-                       if($result === true) echo $dir.'/'.$object.' -> file deleted<br />';
-                       else echo $dir.'/'.$object.'<span style="color:red;"><b> -> file not deleted</b></span><br />';
-                    }
-                }
+        /* Returns the subfolders of $dir as an array */
+        $dir_subfolders = function ($dir) {
+            $sub = scandir($dir);
+            $sub = array_filter ($sub, function ($e) use ($dir) {
+                return is_dir ("$dir/$e")
+                       && !in_array ($e, array('.', '..'));
+            } );
+            return $sub;
+        };
+
+        /* Return an array of template names */
+        $list_templates = function () use ($dir_subfolders) {
+            return $dir_subfolders (DOKU_INC."lib/tpl");
+        };
+
+        /* Return an array of languages available for the module
+         * (core, template or plugin) given its $root directory */
+        $list_langs = function ($root) use ($dir_subfolders) {
+            $dir = "$root/lang";
+            if (!is_dir ($dir)) return;
+
+            return $dir_subfolders ($dir);
+        };
+
+        /* Get templates and plugins names */
+        global $plugin_controller;
+        $plugins = $plugin_controller->getList();
+        $templates = $list_templates();
+
+        return array(
+            "core" => $list_langs (DOKU_INC."inc"),
+            "templates" => array_combine ($templates,
+                array_map ($list_langs,
+                    array_prefix ($templates, DOKU_INC."lib/tpl/"))),
+            "plugins" => array_combine ($plugins,
+                array_map ($list_langs,
+                    array_prefix ($plugins, DOKU_PLUGIN)))
+        );
+    }
+
+    /** Remove $lang_keep from the module languages $e
+     *
+     * Signature: ^Lang, Array => ^Lang */
+    private function _filter_out_lang ($e, $lang_keep) {
+        // Recursive function with cases being an array of arrays, or an array
+        if (count ($e) > 0 && is_array (array_values($e)[0])) {
+            foreach ($e as $k => $elt) {
+                $out[$k] = $this->_filter_out_lang ($elt, $lang_keep);
             }
-            reset($objects);
-            @rmdir($dir); 
+            return $out;
+
+        } else {
+            return array_filter ($e, function ($v) use ($lang_keep) {
+                return !in_array ($v, $lang_keep);
+            });
         }
     }
+
+    /** Return an array of the languages in $l
+     *
+     * Signature: ^Lang => Array */
+    private function lang_unique ($l) {
+        foreach ($l['core'] as $lang) {
+            $count[$lang]++;
+        }
+        foreach ($l['templates'] as $tpl => $arr) {
+            foreach ($arr as $lang) {
+                $count[$lang]++;
+            }
+        }
+        foreach ($l['plugins'] as $plug => $arr) {
+            foreach ($arr as $lang) {
+                $count[$lang]++;
+            }
+        }
+
+        return array_keys ($count);
+    }
+
+    /** Delete the languages from the modules as specified by $langs
+     *
+     * Signature: ^Lang => () */
+    private function remove_langs($langs) {
+        foreach ($langs['core'] as $l) {
+            $this->rrm(DOKU_INC."inc/lang/$l");
+        }
+
+        foreach ($langs['templates'] as $tpl => $arr) {
+            foreach ($arr as $l) {
+                $this->rrm(DOKU_INC."lib/tpl/$tpl/lang/$l");
+            }
+        }
+
+        foreach ($langs['plugins'] as $plug => $arr) {
+            foreach ($arr as $l) {
+                $this->rrm(DOKU_INC."lib/plugins/$plug/lang/$l");
+            }
+        }
+    }
+
+    /** Recursive file removal of $path with reporting */
+    private function rrm ($path) {
+        if (is_dir ($path)) {
+            $objects = scandir ($path);
+            foreach ($objects as $object) {
+                if (!in_array ($object, array('.', '..'))) {
+                    $this->rrm("$path/$object");
+                }
+            }
+            $sucess = @rmdir ($path);
+            if (!$sucess) { echo "Failed to delete $path/\n"; }
+            else echo "Delete $path\n";
+        } else {
+            $sucess = @unlink ($path);
+            if (!$sucess) { echo "Failed to delete $path\n"; }
+            else echo "Delete $path\n";
+        }
+    }
+}
+
+/** Returns an array with each element of $arr prefixed with $prefix */
+function array_prefix ($arr, $prefix) {
+    return array_map (
+        function ($p) use ($prefix) { return $prefix.$p; },
+        $arr);
 }

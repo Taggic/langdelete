@@ -28,6 +28,85 @@
 #langdelete__form div.box {
   float: left;
 }
-#langdelete__form input.button {
+#langdelete__form button {
   float: right;
+}
+
+/*** Text ***/
+
+/* To be at least as secific as the dokuwiki stylesheet which is:
+ * .dokuwiki .page ul li
+ */
+.page section.langdelete__text ul li
+{
+	/* Reset text color */
+    color: rgb(51, 51, 51);
+}
+
+/* style #langshortlist */
+.langdelete__text #langshortlist {
+	padding: 0 0 0 0.6ch;
+}
+.langdelete__text #langshortlist label {
+    margin-left: 0.5ch;
+}
+
+/* Checked checkboxes strikes through the label */
+.langdelete__text #langshortlist input[type="checkbox"] ~ label,
+.langdelete__text #langshortlist input[type="checkbox"] ~ label del
+{
+    color: #800;
+    text-decoration: line-through;
+}
+.langdelete__text #langshortlist input[type="checkbox"]:checked ~ label,
+.langdelete__text #langshortlist input[type="checkbox"]:checked ~ label del
+{
+    color: inherit;
+    text-decoration: none;
+}
+
+/* Style ul.languages which is an inline list of languages */
+.langdelete__text ul.languages {
+	display: inline;
+	margin: 0 0.3ch;
+}
+.langdelete__text ul.languages li {
+    display: inline;
+    margin: 0 0.2ch;
+	border-radius: 0.5ex;
+	padding: 0 0.2ch;
+}
+
+/* Highlight text if active in langlonglist */
+.langdelete__text li.active .module {
+	color: navy;
+	font-weight: bold;
+}
+.langdelete__text ul.languages li.active {
+	background: #e0f5ff;
+	font-weight: bold;
+}
+
+/* strike text if li.enabled in langlonglist */
+.langdelete__text ul.languages li,
+.langdelete__text ul.languages li del {
+    text-decoration: line-through;
+    color: #800;
+}
+.langdelete__text ul.languages li.enabled,
+.langdelete__text ul.languages li.enabled del {
+    text-decoration: none;
+    color: inherit;
+}
+
+/*** Animation ***/
+/* jump briefly */
+.ani-ld-text-added {
+    animation: 0.1s linear ld-text-added;
+}
+
+@keyframes ld-text-added {
+    from {}
+    50% { transform: translateY(-0.5ex); }
+    to {}
 }
