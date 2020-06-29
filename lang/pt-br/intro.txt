@@ -1,0 +1,5 @@
+====== Exclusão de linguages ======
+
+Esta página permite excluir arquivos de linguagem não usadas para economizar espaço.
+Especifique apenas as linguagens que deseja manter. Inglês e a linguagem default serão sempre mantidas.
+Leia a [[doku>plugin:langdelete|descrição do plugin]] para mais informações sobre seus recursos.
