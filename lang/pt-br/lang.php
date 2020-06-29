@@ -1,9 +1,9 @@
 <?php
 /**
- * english language file
+ * Portuguese-Brazil language file
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * @author Taggic <taggic@t-online.de>
+ * @author Paulo Schopf <prschopf at github>
  */
 $lang['menu']               = 'Exclusão de linguagens';
 
