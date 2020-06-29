@@ -1,0 +1,3 @@
+Linguagens são representadas pelos códigos ISO 639-1 de duas letras. Por exemplo, Português Brasileiro é ''pt-br'' e Francês é ''fr''.\\
+A lista completa está disponivel em [[wp>List_of_ISO_639-1_codes]] ou na [[http://www.loc.gov/standards/iso639-2/php/English_list.php|Biblioteca do Congresso dos EUA]].
+Para manter várias linguagens, separe-as com vírgulas, assim: ''en,es,pt-br''.
