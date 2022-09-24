@@ -97,7 +97,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
             $lang_keep = $u_langs;
         }
 
-        $lang_keep = array_values(array_filter(array_unique($lang_keep)));
+        $lang_keep = array_values(array_filter((array)array_unique($lang_keep)));
         $d->lang_keep =& $lang_keep;
 
         /* Does the language we want to keep actually exist ? */
@@ -352,7 +352,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
         /* Returns the subfolders of $dir as an array */
         $dir_subfolders = function ($dir) {
             $sub = scandir($dir);
-            $sub = array_filter ($sub, function ($e) use ($dir) {
+            $sub = array_filter ((array)$sub, function ($e) use ($dir) {
                 return is_dir ("$dir/$e")
                        && !in_array ($e, array('.', '..'));
             } );
@@ -394,14 +394,14 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
      * Signature: ^Lang, Array => ^Lang */
     private function _filter_out_lang ($e, $lang_keep) {
         // Recursive function with cases being an array of arrays, or an array
-        if (count ($e) > 0 && is_array (array_values($e)[0])) {
+        if (count ((array)$e) > 0 && is_array (array_values($e)[0])) {
             foreach ($e as $k => $elt) {
                 $out[$k] = $this->_filter_out_lang ($elt, $lang_keep);
             }
             return $out;
 
         } else {
-            return array_filter ($e, function ($v) use ($lang_keep) {
+            return array_filter ((array)$e, function ($v) use ($lang_keep) {
                 return !in_array ($v, $lang_keep);
             });
         }
