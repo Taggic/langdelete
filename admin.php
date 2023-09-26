@@ -292,6 +292,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
          * Cross out those not in $keep */
         $print_lang_li = function ($langs) use ($keep) {
             echo '<ul class="languages">';
+            $langs = !is_array($langs) ? [] : $langs;
             foreach ($langs as $val) {
                 // If $keep is null, we keep everything
                 $enabled = is_null($keep) || in_array ($val, $keep);
