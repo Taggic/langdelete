@@ -53,6 +53,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
     /** Called when dispatching the DokuWiki action;
      * Puts the required data for ->html() in $->d */
     function handle() {
+		global $conf;
         $d =& $this->d;
         $d = new stdClass; // reset
 
@@ -79,7 +80,7 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
 
 		/* Grab form data */
 		if ($submit) {
-			$d->dryrun = $_REQUEST['dryrun'];
+			$d->dryrun = !empty($_REQUEST['dryrun']);
             $lang_str = $_REQUEST['langdelete_w'];
 		}
 
@@ -176,10 +177,10 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
                 return;
             }
 
-            if ($d->discrepancy) {
+            if (!empty($d->discrepancy)) {
                 msg($this->getLang('discrepancy_warn'), 2);
             }
-            if ($d->nolang_s) {
+            if (!empty($d->nolang_s)) {
                 msg($this->getLang('nolang') . $d->nolang_s , 2);
             }
 
@@ -393,8 +394,9 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
      *
      * Signature: ^Lang, Array => ^Lang */
     private function _filter_out_lang ($e, $lang_keep) {
-        // Recursive function with cases being an array of arrays, or an array
-        if (count ($e) > 0 && is_array (array_values($e)[0])) {
+        if (!is_array($e)) return [];
+		// Recursive function with cases being an array of arrays, or an array
+        if ( count ($e) > 0 && is_array (array_values($e)[0])) {
             foreach ($e as $k => $elt) {
                 $out[$k] = $this->_filter_out_lang ($elt, $lang_keep);
             }
@@ -411,16 +413,22 @@ class admin_plugin_langdelete extends DokuWiki_Admin_Plugin {
      *
      * Signature: ^Lang => Array */
     private function lang_unique ($l) {
+		$count = [];
         foreach ($l['core'] as $lang) {
+			if (empty($count[$lang])) { $count[$lang] = 0; }
             $count[$lang]++;
         }
         foreach ($l['templates'] as $tpl => $arr) {
+			if (empty($arr)) continue;
             foreach ($arr as $lang) {
+				if (empty($count[$lang])) { $count[$lang] = 0; }
                 $count[$lang]++;
             }
         }
         foreach ($l['plugins'] as $plug => $arr) {
+			if (empty($arr)) continue;
             foreach ($arr as $lang) {
+				if (empty($count[$lang])) { $count[$lang] = 0; }
                 $count[$lang]++;
             }
         }
